@@ -191,52 +191,6 @@ Tables are assigned to zones using the `@Zone` annotation:
 )
 ```
 
-### Adding New Entity Types
-
-1. Create a new model class in the `model` package
-2. Add proper annotations for Ignite tables:
-
-   ```java
-   @Table(
-           zone = @Zone(value = "Chinook", storageProfiles = "default"),
-           colocateBy = @ColumnRef("ParentEntityId") // Optional co-location
-   )
-   public class NewEntity {
-       @Id
-       @Column(value = "Id", nullable = false)
-       private Integer id;
-       
-       @Column(value = "Name", nullable = false)
-       private String name;
-       
-       // Additional fields with appropriate annotations
-       
-       // Constructors, getters, setters, etc.
-   }
-   ```
-
-3. Update `TableUtils.java` to include your new table in creation/deletion processes:
-
-   ```java
-   // In createTables method
-   System.out.println("--- Creating NewEntity table");
-   client.catalog().createTable(NewEntity.class);
-   
-   // In dropTables method, update the tableNames list
-   List<String> tableNames = Arrays.asList("NewEntity", "Track", "Album", ...);
-   ```
-
-4. Add utility methods in `DataUtils.java` to populate your new entity
-
-### Modifying Existing Entities
-
-1. Update the model class with new fields and annotations
-2. Run the following to recreate the schema:
-
-   ```bash
-   mvn exec:java@create-tables
-   ```
-
 ### Creating Custom Queries
 
 Add new methods to `ChinookUtils.java` following this pattern:
@@ -254,47 +208,6 @@ public static void findCustomData(IgniteClient client, String parameter) {
 }
 ```
 
-## Troubleshooting
+## License
 
-### Connection Issues
-
-If you encounter connection problems:
-
-1. Verify all Ignite nodes are running:
-
-   ```bash
-   docker ps
-   ```
-
-2. Check the logs for any errors:
-
-   ```bash
-   docker logs ignite-node-1
-   ```
-
-3. Ensure the connection addresses in `ChinookUtils.java` match your environment:
-
-   ```java
-   public static final String[] NODE_ADDRESSES = {
-       "localhost:10800", "localhost:10801", "localhost:10802"
-   };
-   ```
-
-### Schema Issues
-
-If you encounter schema-related errors:
-
-1. Drop and recreate all tables by running:
-
-   ```bash
-   mvn exec:java@create-tables
-   ```
-
-   When prompted, enter 'Y' to drop existing tables.
-
-2. Reload the sample data:
-
-   ```bash
-   mvn exec:java@load-data
-   ```
-
+[Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
