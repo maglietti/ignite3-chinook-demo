@@ -14,14 +14,34 @@ This guide will walk you through setting up and running the Ignite 3 Chinook Dat
 
 ### Step 1: Start the Ignite cluster
 
-Launch the Ignite nodes using Docker Compose:
+- Launch the Ignite nodes using Docker Compose:
 
 ```bash
 docker-compose up -d
 ```
 
-> [!IMPORTANT]
-> Wait for all Ignite nodes to start completely before proceeding to the next steps. This typically takes about 30 seconds.
+- Start the Ignite CLI in Docker:
+
+```bash
+docker run --rm -it --network=host -e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 apacheignite/ignite:3.0.0 cli
+```
+
+- Inside the CLI, connect to one of the nodes:
+
+```bash
+connect http://localhost:10300
+```
+
+- Initialize the cluster with a name and metastorage group:
+
+```bash
+cluster init --name=ignite3 --metastorage-group=node1,node2,node3
+```
+
+- Exit the CLI by typing `exit` or pressing Ctrl+D
+
+> [!warning]
+> The initialization step MUST be performed for a new cluster.
 
 ### Step 2: Create the database schema
 
