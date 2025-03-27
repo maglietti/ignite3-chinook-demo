@@ -28,7 +28,7 @@ docker-compose up -d
 Run the CreateTablesApp to set up the database schema:
 
 ```bash
-mvn exec:java@create-tables
+mvn compile exec:java@create-tables
 ```
 
 This application will:
@@ -42,7 +42,7 @@ This application will:
 Populate the database with sample data:
 
 ```bash
-mvn exec:java@load-data
+mvn compile exec:java@load-data
 ```
 
 This will:
@@ -56,7 +56,7 @@ This will:
 Execute the main application to see various operations with the Chinook database:
 
 ```bash
-mvn exec:java@run-main
+mvn compile exec:java@run-main
 ```
 
 The application demonstrates:
