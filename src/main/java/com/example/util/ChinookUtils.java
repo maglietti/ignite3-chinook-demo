@@ -4,7 +4,6 @@ import com.example.model.*;
 import org.apache.ignite.client.IgniteClient;
 import org.apache.ignite.table.RecordView;
 import org.apache.ignite.table.Table;
-import org.apache.ignite.table.Tuple;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

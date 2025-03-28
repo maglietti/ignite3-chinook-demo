@@ -166,7 +166,6 @@ public class TableUtils {
             System.out.println("--- Creating Track table");
             client.catalog().createTable(Track.class);
 
-            // Create additional Chinook tables
             System.out.println("--- Creating Employee table");
             client.catalog().createTable(Employee.class);
 

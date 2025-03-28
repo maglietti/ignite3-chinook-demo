@@ -24,7 +24,7 @@ The file follows a specific format:
 
 The SQL file should be placed in the `src/main/resources` directory of the project. This is a standard location for non-Java resources in Maven projects and allows the file to be loaded from the classpath at runtime.
 
-```
+```shell
 src/main/resources/chinook-ignite3.sql
 ```
 
@@ -39,6 +39,7 @@ List<String> sqlStatements = SqlImportUtils.parseSqlStatementsFromReader(reader)
 ```
 
 This method:
+
 - Reads the file line by line
 - Handles statement delimiters (semicolons)
 - Filters out comments and empty lines
@@ -61,6 +62,7 @@ for (String statement : statements) {
 ```
 
 This ensures that:
+
 - Distribution zones are created first
 - Tables are created in the correct dependency order
 - The database schema is fully established before data is loaded
@@ -82,6 +84,7 @@ for (String statement : statements) {
 ```
 
 This approach:
+
 - Ensures data is inserted after all tables are created
 - Handles potential foreign key constraints correctly
 - Provides a clean separation between schema creation and data loading
@@ -115,6 +118,7 @@ mvn compile exec:java -Dexec.mainClass="com.example.app.BulkLoadApp"
 ```
 
 The application:
+
 1. Connects to the Ignite cluster
 2. Checks if required distribution zones exist
 3. Reads and parses the SQL file
