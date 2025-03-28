@@ -8,7 +8,6 @@ import org.apache.ignite.table.Table;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Utility class for loading and managing sample data in the Chinook database

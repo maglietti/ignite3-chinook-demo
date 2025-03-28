@@ -3,11 +3,7 @@ package com.example.util;
 import org.apache.ignite.catalog.definitions.ZoneDefinition;
 import org.apache.ignite.client.IgniteClient;
 
-import com.example.model.Album;
-import com.example.model.Artist;
-import com.example.model.Genre;
-import com.example.model.MediaType;
-import com.example.model.Track;
+import com.example.model.*;
 
 import java.util.List;
 import java.util.Arrays;
@@ -17,6 +13,25 @@ import java.util.Arrays;
  */
 public class TableUtils {
 
+    /**
+     * Checks if a distribution zone exists in the database
+     *
+     * @param client The Ignite client
+     * @param zoneName The name of the zone to check
+     * @return True if the zone exists, false otherwise
+     */
+    public static boolean zoneExists(IgniteClient client, String zoneName) {
+        try {
+            // Query system.zones to check if the zone exists
+            var result = client.sql().execute(null, 
+                "SELECT name FROM system.zones WHERE name = ?", zoneName);
+            return result.hasNext(); // If any rows are returned, the zone exists
+        } catch (Exception e) {
+            System.err.println("Error checking if zone exists: " + e.getMessage());
+            return false;
+        }
+    }
+    
     /**
      * Checks if a table exists in the database
      *
@@ -42,7 +57,11 @@ public class TableUtils {
         try {
             System.out.println("\n=== Dropping Tables");
             // List of tables to drop in reverse order to avoid foreign key constraints
-            List<String> tableNames = Arrays.asList("Track", "Album", "Artist", "Genre", "MediaType");
+            List<String> tableNames = Arrays.asList(
+                "PlaylistTrack", "Playlist", "InvoiceLine", "Invoice", 
+                "Customer", "Employee", "Track", "Album", "Artist", 
+                "Genre", "MediaType"
+            );
 
             for (String tableName : tableNames) {
                 if (tableExists(client, tableName)) {
@@ -146,6 +165,24 @@ public class TableUtils {
 
             System.out.println("--- Creating Track table");
             client.catalog().createTable(Track.class);
+
+            System.out.println("--- Creating Employee table");
+            client.catalog().createTable(Employee.class);
+
+            System.out.println("--- Creating Customer table");
+            client.catalog().createTable(Customer.class);
+
+            System.out.println("--- Creating Invoice table");
+            client.catalog().createTable(Invoice.class);
+
+            System.out.println("--- Creating InvoiceLine table");
+            client.catalog().createTable(InvoiceLine.class);
+
+            System.out.println("--- Creating Playlist table");
+            client.catalog().createTable(Playlist.class);
+
+            System.out.println("--- Creating PlaylistTrack table");
+            client.catalog().createTable(PlaylistTrack.class);
 
             System.out.println("=== All tables created successfully!");
             return true;

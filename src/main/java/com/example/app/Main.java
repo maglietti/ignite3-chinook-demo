@@ -3,14 +3,10 @@ package com.example.app;
 import com.example.model.*;
 import com.example.util.ChinookUtils;
 import com.example.util.DataUtils;
-import com.example.util.TableUtils;
 import org.apache.ignite.client.IgniteClient;
 import org.apache.ignite.client.IgniteClientConnectionException;
 import org.apache.ignite.client.IgniteClientFeatureNotSupportedByServerException;
-import org.apache.ignite.table.KeyValueView;
-import org.apache.ignite.table.RecordView;
 import org.apache.ignite.table.Table;
-import org.apache.ignite.table.Tuple;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
