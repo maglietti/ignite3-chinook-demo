@@ -187,6 +187,51 @@ When your POJO data reaches the Ignite cluster:
 6. **Indexing**: Indexes are created and maintained for efficient querying
 7. **Storage**: Data is persisted according to the storage engine's format (B+ tree or LSM-tree)
 
+## POJO-based vs. SQL-based Table Creation
+
+Ignite 3 supports two approaches for creating tables and managing data:
+
+### POJO-based Approach (Java APIs)
+
+```java
+// Create the Artist table from a POJO
+client.catalog().createTable(Artist.class);
+
+// Create and insert an Artist instance
+Artist artist = new Artist(1, "AC/DC");
+Table artistTable = client.tables().table("Artist");
+RecordView<Artist> artistView = artistTable.recordView(Artist.class);
+artistView.upsert(null, artist);
+```
+
+### SQL-based Approach (SQL Statements)
+
+```sql
+-- Create the Artist table using SQL
+CREATE TABLE Artist (
+    ArtistId INT PRIMARY KEY,
+    Name VARCHAR
+) ZONE Chinook STORAGE PROFILE 'default';
+
+-- Insert an artist using SQL
+INSERT INTO Artist (ArtistId, Name) VALUES (1, 'AC/DC');
+```
+
+### Comparison
+
+| Feature | POJO-based | SQL-based (BulkLoadApp) |
+|---------|------------|-------------------------|
+| Schema Definition | Java annotations | SQL statements |
+| Type Safety | Compile-time checking | Runtime checking |
+| Ease of Use | Object-oriented | Familiar SQL syntax |
+| Performance | Direct binary format | SQL parsing overhead |
+| Bulk Operations | `upsertAll()` method | SQL batch inserts |
+| Flexibility | Java object manipulation | SQL's expressiveness |
+| Learning Curve | Java and annotations | SQL knowledge |
+| Implementation | CreateTablesApp, LoadDataApp | BulkLoadApp |
+
+Both approaches create the same underlying table structure and support the same operations. You can even mix approaches, creating tables with SQL and then using Java APIs to operate on them, or vice versa.
+
 ## Benefits of This Approach
 
 1. **Type Safety**: Java's type system ensures data integrity before it reaches the cluster
@@ -259,8 +304,36 @@ artistView.upsert(null, artist);
 albumView.upsert(null, album);
 ```
 
+### Example 3: Using transactions for related entities
+
+```java
+// Create multiple related entities in a transaction
+client.transactions().runInTransaction(tx -> {
+    // Create artist
+    Artist queen = new Artist(6, "Queen");
+    artistView.upsert(tx, queen);
+    
+    // Create album
+    Album album = new Album(6, "A Night at the Opera", 6);
+    albumView.upsert(tx, album);
+    
+    // Create tracks
+    Track track1 = new Track(6, "Bohemian Rhapsody", 6, 1, 1, 
+        "Freddie Mercury", 354947, 5733664, new BigDecimal("0.99"));
+    Track track2 = new Track(7, "You're My Best Friend", 6, 1, 1,
+        "John Deacon", 175733, 2875239, new BigDecimal("0.99"));
+    
+    List<Track> tracks = Arrays.asList(track1, track2);
+    trackView.upsertAll(tx, tracks);
+    
+    return true;
+});
+```
+
 ## Further Reading
 
 - [Apache Ignite 3 Java API Documentation](https://ignite.apache.org/docs/ignite3/latest/)
-- [Distribution Zones in Ignite 3](https://ignite.apache.org/docs/ignite3/latest/administrators-guide/distribution-zones)
-- [Storage Profiles and Engines](https://ignite.apache.org/docs/ignite3/latest/administrators-guide/storage)
+- [Distribution Zones in Ignite 3](./distribution-zones-doc.md)
+- [Storage Profiles and Engines](./storage-profiles-doc.md)
+- [Bulk Loading in Ignite 3](./bulk-load-doc.md)
+- [Ignite 3 Annotations Reference](./annotations-doc.md)

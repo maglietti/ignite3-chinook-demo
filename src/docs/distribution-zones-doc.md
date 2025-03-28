@@ -73,6 +73,15 @@ public class Artist {
 }
 ```
 
+Alternatively, when using SQL-based creation with `BulkLoadApp`, zones are specified in the CREATE TABLE statement:
+
+```sql
+CREATE TABLE Artist (
+    ArtistId INT PRIMARY KEY,
+    Name VARCHAR
+) ZONE Chinook STORAGE PROFILE 'default';
+```
+
 ## Zone Configuration Options
 
 ### Replicas
@@ -106,7 +115,7 @@ Storage profiles define how data is physically stored:
 In Ignite 3, storage profiles define a storage engine and its configuration parameters. Currently, Ignite 3 supports these storage engines:
 
 - Apache Ignite Page Memory (B+ tree) - available in both persistent and volatile (in-memory) variants
-- RocksDB - a persistent storage based on Log-structured Merge-tree (LSM) optimized for write-heavy workloads 26-1
+- RocksDB - a persistent storage based on Log-structured Merge-tree (LSM) optimized for write-heavy workloads
 
 You can configure different storage profiles with various parameters such as checkpoint frequency, page size, and memory allocation based on your workload needs.
 
@@ -119,6 +128,12 @@ Tables with complex relationships and frequent updates are assigned to the `Chin
 - `Artist.java`: Music artists
 - `Album.java`: Music albums
 - `Track.java`: Music tracks
+- `Customer.java`: Customer information
+- `Invoice.java`: Billing information
+- `InvoiceLine.java`: Invoice details
+- `Employee.java`: Employee information
+- `Playlist.java`: Music playlists
+- `PlaylistTrack.java`: Playlist-track associations
 
 ```java
 @Table(
@@ -197,6 +212,19 @@ public class Album {
 
 This ensures that when you join `Artist` and `Album` tables, the data is already located on the same node, reducing network transfers.
 
+### Rebalancing When Nodes Join or Leave
+
+When a node joins or leaves the cluster, Ignite automatically rebalances data according to the zone configuration:
+
+1. **Node Joining**: New partitions are created on the new node, and data is copied from existing replicas.
+2. **Node Leaving**: Partition replicas on the leaving node are redistributed to other nodes.
+
+The rebalancing process happens in the background and is designed to minimize disruption to ongoing operations. During rebalancing:
+
+- Primary partitions continue serving read and write operations
+- Rebalanced partitions become available as soon as they are created
+- The cluster maintains the specified replica count throughout the process
+
 ## Creating Zones Programmatically
 
 The demo creates zones programmatically in `TableUtils.java`:
@@ -234,6 +262,42 @@ public static boolean createDistributionZones(IgniteClient client) {
 }
 ```
 
+Alternatively, zones can be created using SQL in the `BulkLoadApp`:
+
+```sql
+CREATE ZONE IF NOT EXISTS Chinook 
+WITH STORAGE_PROFILES='default', REPLICAS=2;
+
+CREATE ZONE IF NOT EXISTS ChinookReplicated 
+WITH STORAGE_PROFILES='default', REPLICAS=3, PARTITIONS=25;
+```
+
+## Monitoring Zone Usage
+
+You can monitor zone usage using Ignite's monitoring tools and SQL queries:
+
+```sql
+-- List all zones
+SELECT * FROM system.zones;
+
+-- Count partitions per zone
+SELECT zone_name, COUNT(*) as partition_count 
+FROM system.partitions 
+GROUP BY zone_name;
+
+-- Check table assignments
+SELECT schema_name, table_name, zone_name 
+FROM system.tables 
+ORDER BY zone_name, table_name;
+```
+
+This information can help you:
+
+- Verify zone configurations
+- Monitor data distribution
+- Track partition counts
+- Plan capacity
+
 ## Zone Considerations and Best Practices
 
 ### Performance Considerations
@@ -260,16 +324,19 @@ As your application evolves, you may need to adjust zones:
 - Monitor performance and adjust as needed
 - Consider creating specialized zones for specific workloads
 
-## Monitoring Zone Usage
+### Workload-Specific Zone Examples
 
-You can monitor zone usage using Ignite's monitoring tools:
-
-- Number of partitions per node
-- Data size per zone
-- Read/write operations per zone
+| Workload Type | Recommended Configuration | Rationale |
+|---------------|---------------------------|-----------|
+| Reference Data | 3+ replicas, smaller partition count | High availability, fast reads |
+| Transactional Data | 2 replicas, larger partition count | Balance between writes and fault tolerance |
+| Time-Series Data | 1-2 replicas, time-based partitioning | Optimize for sequential writes |
+| Archive Data | 1 replica with persistence | Low access frequency, storage efficiency |
 
 ## Further Reading
 
 - [Apache Ignite 3 Distribution Documentation](https://ignite.apache.org/docs/latest/concepts/distributed-data)
 - [Ignite 3.0 Storage Architecture](https://ignite.apache.org/docs/latest/concepts/storage)
 - [Replication and High Availability in Ignite 3](https://ignite.apache.org/docs/latest/concepts/high-availability)
+- [Storage Profiles in Ignite 3](./storage-profiles-doc.md)
+- [Bulk Loading in Ignite 3](./bulk-load-doc.md)

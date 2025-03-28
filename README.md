@@ -4,7 +4,7 @@ A demonstration of Apache Ignite 3 Java API using the Chinook database model.
 
 ## Overview
 
-This project demonstrates how to use Apache Ignite 3's Java API with POJO-based table mapping. It implements the Chinook database, a sample database schema for a digital media store, to showcase various Ignite 3 features including:
+This project demonstrates how to use Apache Ignite 3's Java API with POJO-based table mapping. It implements the Chinook database, a sample database schema for a digital media store (similar to iTunes), to showcase various Ignite 3 features including:
 
 - Annotation-based table mapping
 - Distribution zones and storage profiles
@@ -12,6 +12,7 @@ This project demonstrates how to use Apache Ignite 3's Java API with POJO-based 
 - CRUD operations with POJOs
 - SQL query execution
 - Transaction management
+- Bulk data loading from SQL files
 
 ## Prerequisites
 
@@ -36,19 +37,26 @@ cluster init --name=ignite3 --metastorage-group=node1,node2,node3
 exit
 ```
 
-3. **Create the database schema**
+3. **Choose a setup method:**
+
+### Option A: POJO-based setup (step-by-step)
 
 ```bash
+# Create the database schema
 mvn compile exec:java@create-tables
-```
 
-4. **Load sample data**
-
-```bash
+# Load sample data
 mvn compile exec:java@load-data
 ```
 
-5. **Run the main application**
+### Option B: Bulk loading (faster setup)
+
+```bash
+# Load both schema and data from SQL file
+mvn compile exec:java@bulk-load
+```
+
+4. **Run the main application**
 
 ```bash
 mvn compile exec:java@run-main
@@ -65,6 +73,7 @@ For detailed documentation, see the [docs](./docs) directory:
 - [Storage Profiles](./docs/storage-profiles.md) - Storage engine options and configuration
 - [Annotations](./docs/annotations.md) - Reference for Ignite 3 annotations
 - [Examples](./docs/examples.md) - Code examples and patterns
+- [Bulk Loading](./docs/bulk-load-doc.md) - Loading data from SQL files
 
 ## License
 

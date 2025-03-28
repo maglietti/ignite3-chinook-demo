@@ -30,6 +30,14 @@ docker ps
 
 You should see three containers running with names like `ignite3-node1-1`, `ignite3-node2-1`, and `ignite3-node3-1`.
 
+Expected output:
+```
+CONTAINER ID   IMAGE                      COMMAND                  CREATED          STATUS          PORTS                                            NAMES
+a1b2c3d4e5f6   apacheignite/ignite:3.0.0  "/opt/ignite/bin/ign…"   2 minutes ago   Up 2 minutes    0.0.0.0:10300->10300/tcp, 0.0.0.0:10800->10800/tcp   ignite3-node1-1
+b2c3d4e5f6g7   apacheignite/ignite:3.0.0  "/opt/ignite/bin/ign…"   2 minutes ago   Up 2 minutes    0.0.0.0:10301->10300/tcp, 0.0.0.0:10801->10800/tcp   ignite3-node2-1
+c3d4e5f6g7h8   apacheignite/ignite:3.0.0  "/opt/ignite/bin/ign…"   2 minutes ago   Up 2 minutes    0.0.0.0:10302->10300/tcp, 0.0.0.0:10802->10800/tcp   ignite3-node3-1
+```
+
 ### Step 2: Initialize the cluster
 
 Before you can use the cluster, you need to initialize it with a name and metastorage group:
@@ -46,7 +54,26 @@ cluster init --name=ignite3 --metastorage-group=node1,node2,node3
 exit
 ```
 
+Expected output:
+```
+Connected to http://localhost:10300
+Cluster initialized successfully
+```
+
 > ⚠️ **Important**: The initialization step MUST be performed for a new cluster. You only need to do this once when setting up the cluster for the first time.
+
+## Setup Flow Diagram
+
+```mermaid
+flowchart TD
+    A[Start Docker Containers] --> B[Initialize Cluster]
+    B --> C{Choose Setup Method}
+    C -->|POJO-based| D[Create Tables]
+    D --> E[Load Sample Data]
+    C -->|SQL-based| F[Bulk Load]
+    E --> G[Run Main Application]
+    F --> G
+```
 
 ## Setting Up the Distribution Zones and Storage Profiles
 
@@ -84,9 +111,13 @@ Each zone is configured with:
 
 Storage profiles determine which storage engine to use and its configuration. By default, Ignite 3 creates a `default` storage profile that uses the persistent Apache Ignite Page Memory (B+ tree) engine.
 
-## Setting Up the Database Schema
+## Setting Up the Database Schema - Two Approaches
 
-### Step 1: Create the database schema
+You have two options for setting up the Chinook database:
+
+### Approach 1: Step-by-Step POJO-based Setup
+
+#### Step 1: Create the database schema
 
 Run the `CreateTablesApp` to set up the database schema:
 
@@ -102,7 +133,21 @@ This application will:
 
 If the tables already exist, the application will prompt you to confirm whether you want to drop and recreate them.
 
-### Step 2: Load sample data
+Expected output:
+```
+Connected to the cluster: [localhost:10800]
+=== Creating Distribution Zones
+--- Creating Distribution Zone: ZoneDefinition{name='Chinook', partitions=256, replicas=2, storageProfiles=[default]}
+--- Creating Distribution Zone: ZoneDefinition{name='ChinookReplicated', partitions=25, replicas=3, storageProfiles=[default]}
+=== Distribution zones created successfully
+=== Creating tables ===
+--- Creating Artist table
+--- Creating Genre table
+...
+=== All tables created successfully!
+```
+
+#### Step 2: Load sample data
 
 Populate the database with sample data:
 
@@ -117,6 +162,61 @@ This will:
 - Create sample related entities with proper relationships
 
 If data already exists in the database, the application will prompt you to confirm whether you want to load additional data.
+
+Expected output:
+```
+Connected to the cluster: [localhost:10800]
+--- Loading Sample Data ---
+Loading Artists...
+Added 5 artists
+Loading Albums...
+Added 5 albums
+...
+Sample data loaded successfully
+```
+
+### Approach 2: Bulk Loading
+
+A faster alternative is to use the `BulkLoadApp`, which loads both schema and data in one step:
+
+```bash
+mvn compile exec:java@bulk-load
+```
+
+This application will:
+
+1. Look for SQL files in the resources directory
+2. Ask you to select a file (typically `chinook-ignite3.sql`)
+3. Parse SQL statements from the file
+4. Execute the statements in the correct order (schema first, then data)
+5. Verify the data was loaded correctly
+
+Expected output:
+```
+>>> Connected to the cluster: [localhost:10800]
+Available SQL files:
+1. chinook-ignite3.sql
+Select a file to load (1-1): 1
+Selected file: chinook-ignite3.sql
+Parsed 127 SQL statements from file.
+This will create tables and load data from the SQL file.
+Do you want to proceed? (Y/N)
+Y
+=== Starting bulk load from SQL file ===
+=== Processing distribution zones, table definitions, and indexes ===
+[1/127] Executing: CREATE ZONE CREATE ZONE Chinook WITH STORAGE_PROFILES='default', REPLICAS=2
+  Success!
+...
+=== Bulk load completed ===
+Successfully executed 127 out of 127 statements.
+
+=== Verifying Chinook data ===
+Artists: 275
+Albums: 347
+Tracks: 3503
+...
+Chinook database has been loaded successfully!
+```
 
 ## Running the Main Application
 
@@ -134,12 +234,27 @@ The application demonstrates:
 - Executing SQL queries
 - Working with relationships between entities
 
+Expected output:
+```
+Connected to the cluster: [localhost:10800]
+
+--- Artists ---
+Artist ID: 1, Name: AC/DC
+Artist ID: 2, Name: Accept
+...
+
+--- Adding new album using RecordView with POJO ---
+Added album: A Night at the Opera
+...
+```
+
 ## Understanding the Application Structure
 
 ### Main Application Components
 
 - **CreateTablesApp.java**: Creates the distribution zones and database schema
 - **LoadDataApp.java**: Populates the database with sample data
+- **BulkLoadApp.java**: Loads both schema and data from SQL files
 - **Main.java**: Demonstrates various operations on the data
 
 ### Model Classes
@@ -162,6 +277,7 @@ Each model class uses annotations to define:
 - **ChinookUtils.java**: Provides methods for common operations like connecting to the cluster, adding data, and querying
 - **TableUtils.java**: Provides methods for creating distribution zones and managing tables
 - **DataUtils.java**: Provides methods for loading and manipulating sample data
+- **SqlImportUtils.java**: Provides methods for parsing and executing SQL statements for bulk loading
 
 ## Using SQL with the Cluster
 
@@ -190,6 +306,17 @@ WITH STORAGE_PROFILES='default', PARTITIONS=20, REPLICAS=2;
 CREATE TABLE MyTable (id INT PRIMARY KEY, value VARCHAR) 
 ZONE MyZone;
 ```
+
+## Choosing Between Setup Methods
+
+| Feature | POJO-based Setup | Bulk Load Setup |
+|---------|------------------|-----------------|
+| Speed | Slower (two separate steps) | Faster (single step) |
+| Control | Fine-grained control over each step | Less granular control |
+| Visibility | See each operation executed | Operations batched together |
+| Learning | Better for understanding how things work | Better for quick setup |
+| Extensibility | Easier to modify individual parts | Requires editing SQL file |
+| Use Case | Development, learning | Testing, quick deployment |
 
 ## Troubleshooting
 

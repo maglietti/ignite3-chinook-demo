@@ -13,13 +13,17 @@ Marks a Java class as an Ignite table and configures its properties.
 - `zone`: Defines which distribution zone the table belongs to
 - `colocateBy`: Specifies which column should be used for co-location
 - `name`: (Optional) Specifies the table name; defaults to the class name
+- `indexes`: (Optional) Defines indexes on the table
 
 **Example**:
 
 ```java
 @Table(
     zone = @Zone(value = "Chinook", storageProfiles = "default"),
-    colocateBy = @ColumnRef("ArtistId")
+    colocateBy = @ColumnRef("ArtistId"),
+    indexes = {
+        @Index(value = "IFK_AlbumArtistId", columns = { @ColumnRef("ArtistId") })
+    }
 )
 public class Album {
     // Class body...
@@ -87,6 +91,22 @@ References a column for co-location purposes.
     zone = @Zone(value = "Chinook", storageProfiles = "default"),
     colocateBy = @ColumnRef("ArtistId")
 )
+```
+
+### @Index
+
+Defines an index on one or more columns.
+
+**Attributes**:
+
+- `value`: The name of the index
+- `columns`: The columns to include in the index
+- `unique`: (Optional) Whether the index should enforce uniqueness
+
+**Example**:
+
+```java
+@Index(value = "IFK_AlbumArtistId", columns = { @ColumnRef("ArtistId") })
 ```
 
 ## Usage Patterns
@@ -173,6 +193,34 @@ public class Track {
 }
 ```
 
+### Table with Index Definitions
+
+```java
+@Table(
+    zone = @Zone(value = "Chinook", storageProfiles = "default"),
+    indexes = {
+        @Index(value = "IDX_CUSTOMER_EMAIL", columns = { @ColumnRef("Email") }, unique = true),
+        @Index(value = "IDX_CUSTOMER_LOCATION", columns = { @ColumnRef("Country"), @ColumnRef("City") })
+    }
+)
+public class Customer {
+    @Id
+    @Column(value = "CustomerId", nullable = false)
+    private Integer customerId;
+
+    @Column(value = "Email", nullable = false)
+    private String email;
+
+    @Column(value = "Country", nullable = true)
+    private String country;
+
+    @Column(value = "City", nullable = true)
+    private String city;
+    
+    // Additional fields and methods...
+}
+```
+
 ## SQL Equivalent
 
 The annotations in Java map to SQL DDL statements:
@@ -234,6 +282,36 @@ CREATE TABLE Album (
 ) ZONE Chinook STORAGE PROFILE 'default' COLOCATE BY (ArtistId);
 ```
 
+Java annotation with indexes:
+
+```java
+@Table(
+    zone = @Zone(value = "Chinook", storageProfiles = "default"),
+    indexes = {
+        @Index(value = "IDX_ARTIST_NAME", columns = { @ColumnRef("Name") })
+    }
+)
+public class Artist {
+    @Id
+    @Column(value = "ArtistId", nullable = false)
+    private Integer artistId;
+
+    @Column(value = "Name", nullable = true)
+    private String name;
+}
+```
+
+SQL equivalent with indexes:
+
+```sql
+CREATE TABLE Artist (
+    ArtistId INT PRIMARY KEY,
+    Name VARCHAR
+) ZONE Chinook STORAGE PROFILE 'default';
+
+CREATE INDEX IDX_ARTIST_NAME ON Artist(Name);
+```
+
 ## Best Practices
 
 ### Primary Keys
@@ -241,24 +319,28 @@ CREATE TABLE Album (
 - Always mark primary key fields with `@Id`
 - Primary keys should not be null, so use `nullable = false`
 - For complex primary keys, mark all components with `@Id`
+- Use meaningful and consistent names for primary key fields
 
 ### Data Types
 
 - Use appropriate Java types for columns
 - For nullable fields, use object types (Integer) instead of primitives (int)
 - For decimal values, use BigDecimal with appropriate precision and scale
+- Use java.time classes (LocalDate, LocalDateTime) for date/time fields
 
 ### Co-location
 
 - Co-locate tables that are frequently joined
 - The co-location key should be part of the primary key
 - The co-location key should match the type and name in the referenced table
+- Design co-location based on your query patterns
 
 ### Naming
 
 - Be consistent with column names
 - Consider using the same name for related columns across tables
 - Follow a naming convention for primary and foreign keys
+- Use clear, descriptive names for indexes
 
 ### Distribution Zones and Storage Profiles
 
@@ -314,14 +396,6 @@ public static boolean createTables(IgniteClient client) {
 
 For complex types not directly supported by Ignite, you can implement custom type handlers.
 
-### Indexes
-
-Ignite 3 supports index definitions through SQL:
-
-```sql
-CREATE INDEX idx_artist_name ON Artist(Name);
-```
-
 ### Schema Evolution
 
 Ignite 3 allows for schema evolution through SQL ALTER TABLE statements:
@@ -329,6 +403,52 @@ Ignite 3 allows for schema evolution through SQL ALTER TABLE statements:
 ```sql
 ALTER TABLE Artist ADD COLUMN Country VARCHAR;
 ```
+
+## Troubleshooting Annotation Issues
+
+### Common Issues
+
+1. **Missing Primary Key**:
+   - Error: `Table must have at least one primary key column`
+   - Solution: Add `@Id` annotation to at least one field
+
+2. **Zone Not Found**:
+   - Error: `Zone 'ZoneName' not found`
+   - Solution: Ensure zone is created before creating tables
+
+3. **Incompatible Data Types**:
+   - Error: `Cannot convert from X to Y`
+   - Solution: Ensure Java type is compatible with database type
+
+4. **Co-location Key Not in Primary Key**:
+   - Error: `Co-location column must be a part of the primary key`
+   - Solution: Add `@Id` annotation to co-location field
+
+5. **Invalid Column Definition**:
+   - Error: `Invalid column definition`
+   - Solution: Check annotation parameters for correctness
+
+### Resolution Steps
+
+1. **Check Zone Existence**:
+   ```java
+   if (!TableUtils.zoneExists(client, "Chinook")) {
+       TableUtils.createDistributionZones(client);
+   }
+   ```
+
+2. **Verify Table Annotations**:
+   - Ensure all required annotations are present
+   - Check spelling and case sensitivity in annotation values
+   - Ensure referenced tables/columns exist
+
+3. **Test Simple Cases First**:
+   - Start with simple table definitions
+   - Add complexity incrementally
+
+4. **Examine Error Messages**:
+   - Ignite provides detailed error messages
+   - Look for specific annotation issues mentioned
 
 ## Comparison with Ignite 2.x Annotations
 
@@ -340,9 +460,43 @@ Ignite 3 introduces several changes compared to Ignite 2.x:
 | Zone/Region | `@CacheConfiguration` | `@Zone` |
 | Co-location | `@AffinityKeyMapped` | `colocateBy = @ColumnRef()` |
 | Storage | `@DataRegionConfiguration` | Storage Profiles in `@Zone` |
+| Indexes | `@QuerySqlField(index=true)` | `@Index` |
+
+## Integration with BulkLoadApp
+
+The BulkLoadApp uses SQL statements instead of annotations to create tables. The `chinook-ignite3.sql` file contains the SQL equivalents of the annotated POJOs.
+
+For example, this POJO definition:
+
+```java
+@Table(
+    zone = @Zone(value = "Chinook", storageProfiles = "default")
+)
+public class Artist {
+    @Id
+    @Column(value = "ArtistId", nullable = false)
+    private Integer artistId;
+
+    @Column(value = "Name", nullable = true)
+    private String name;
+}
+```
+
+Would be represented in SQL as:
+
+```sql
+CREATE TABLE Artist (
+    ArtistId INT PRIMARY KEY,
+    Name VARCHAR
+) ZONE Chinook STORAGE PROFILE 'default';
+```
+
+The BulkLoadApp executes these SQL statements to create the same schema structure that would be created from the annotated POJOs.
 
 ## Further Reading
 
 - [Apache Ignite 3 Java API Documentation](https://ignite.apache.org/docs/ignite3/latest/)
 - [Ignite 3 SQL Reference](https://ignite.apache.org/docs/ignite3/latest/sql-reference/ddl)
-- [Distribution Zones in Ignite 3](https://ignite.apache.org/docs/ignite3/latest/administrators-guide/distribution-zones)
+- [Distribution Zones in Ignite 3](./distribution-zones-doc.md)
+- [POJO Mapping in Ignite 3](./pojo-mapping-doc.md)
+- [Bulk Loading in Ignite 3](./bulk-load-doc.md)
