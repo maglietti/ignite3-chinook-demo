@@ -7,7 +7,8 @@ A demonstration of Apache Ignite 3 Java API using the Chinook database model.
 This project demonstrates how to use Apache Ignite 3's Java API with POJO-based table mapping. It implements the Chinook database, a sample database schema for a digital media store, to showcase various Ignite 3 features including:
 
 - Annotation-based table mapping
-- Distribution zones and data co-location
+- Distribution zones and storage profiles
+- Data co-location for optimized joins
 - CRUD operations with POJOs
 - SQL query execution
 - Transaction management
@@ -61,16 +62,9 @@ For detailed documentation, see the [docs](./docs) directory:
 - [Data Model](./docs/data-model.md) - Chinook database schema explanation
 - [POJO Mapping](./docs/pojo-mapping.md) - How POJOs are mapped to Ignite tables
 - [Distribution Zones](./docs/distribution-zones.md) - Understanding data distribution
+- [Storage Profiles](./docs/storage-profiles.md) - Storage engine options and configuration
 - [Annotations](./docs/annotations.md) - Reference for Ignite 3 annotations
 - [Examples](./docs/examples.md) - Code examples and patterns
-
-## Project Structure
-
-- `src/main/java/com/example/app/` - Application entry points
-- `src/main/java/com/example/model/` - Data model classes with Ignite annotations
-- `src/main/java/com/example/util/` - Utility classes for database operations
-- `src/main/resources/` - Configuration files
-- `docs/` - Detailed documentation
 
 ## License
 

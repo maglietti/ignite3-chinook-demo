@@ -22,10 +22,12 @@ flowchart TD
     %% Server Side
     subgraph server["Server Side"]
         schema["Schema Definition\nTables, Columns, Types"]
-        storage["Storage Engine\nDistribution, Partitioning"]
+        zone["Distribution Zone\nPartitioning, Replication"]
+        storage["Storage Profiles & Engines\nPersistent or Volatile"]
         grid["Data Grid\nBinary Data Storage"]
         
-        schema --> storage
+        schema --> zone
+        zone --> storage
         storage --> grid
     end
     
@@ -78,8 +80,9 @@ When you call `client.catalog().createTable(Artist.class)`:
 
 1. Ignite scans the annotations in your POJO class
 2. Creates a corresponding table schema in the distributed catalog
-3. Sets up storage structures according to the zone definition
-4. Prepares partitioning and replication based on the zone configuration
+3. Assigns the table to a distribution zone based on the `@Zone` annotation
+4. Configures storage using the specified storage profile
+5. Prepares partitioning and replication based on the zone configuration
 
 The actual implementation happens in `TableUtils.java`:
 
@@ -94,9 +97,10 @@ client.catalog().createTable(Artist.class);
 When you insert data using `recordView.upsert(artist)`:
 
 1. The POJO is serialized into Ignite's binary format
-2. The binary data is distributed according to the partitioning strategy
+2. The binary data is distributed according to the partitioning strategy defined in the zone
 3. For co-located tables, related records are stored on the same cluster nodes
-4. Data is replicated across multiple nodes according to the replica count
+4. Data is replicated across multiple nodes according to the zone's replica count
+5. The storage engine defined by the storage profile handles the physical storage
 
 The implementation in `ChinookUtils.java`:
 
@@ -131,13 +135,21 @@ public static boolean addArtist(IgniteClient client, Artist artist) {
 | java.sql.Timestamp | TIMESTAMP |
 | byte[] | BINARY |
 
-### 5. Distribution and Co-location
+### 5. Distribution Zones and Storage Profiles
 
-- **Distribution Zones**: Control how your data is partitioned and replicated. In this Chinook demo, we use:
-  - `Chinook` zone: Primary entity tables with 2 replicas
-  - `ChinookReplicated` zone: Reference tables with 3 replicas
+In Ignite 3, distribution zones and storage profiles work together to control how data is distributed and stored:
 
-- **Co-location**: Related entities are stored together on the same node when you use `@Table(colocateBy = @ColumnRef("ArtistId"))`, improving join performance.
+- **Distribution Zones**: Define partitioning and replication strategies
+  - In this Chinook demo, we use:
+    - `Chinook` zone: Primary entity tables with 2 replicas
+    - `ChinookReplicated` zone: Reference tables with 3 replicas
+
+- **Storage Profiles**: Define which storage engine to use and its configuration
+  - Available engines:
+    - Apache Ignite Page Memory (B+ tree) - persistent or volatile (in-memory)
+    - RocksDB - optimized for write-heavy workloads
+
+- **Co-location**: Related entities are stored together on the same node when you use `colocateBy = @ColumnRef("ArtistId")`, improving join performance.
 
 Example of co-location in `Album.java`:
 
@@ -166,11 +178,13 @@ public class Album {
 
 When your POJO data reaches the Ignite cluster:
 
-1. **Partitioning**: Each record is assigned to a specific partition based on a hash of its primary key or co-location key
-2. **Distribution**: The partitions are distributed across the cluster nodes according to the zone configuration
-3. **Replication**: Data is replicated to additional nodes based on the replica count
-4. **Indexing**: Indexes are created and maintained for efficient querying
-5. **Storage**: Data is persisted in the storage engine using a columnar format for efficient access
+1. **Distribution Zone Processing**: The zone determines how data is partitioned and replicated
+2. **Partitioning**: Each record is assigned to a specific partition based on a hash of its primary key or co-location key
+3. **Distribution**: The partitions are distributed across the cluster nodes according to the zone configuration
+4. **Replication**: Data is replicated to additional nodes based on the zone's replica count
+5. **Storage Engine Processing**: The configured storage engine (defined by the storage profile) handles the physical storage
+6. **Indexing**: Indexes are created and maintained for efficient querying
+7. **Storage**: Data is persisted according to the storage engine's format (B+ tree or LSM-tree)
 
 ## Benefits of This Approach
 
@@ -179,43 +193,36 @@ When your POJO data reaches the Ignite cluster:
 3. **Optimized Data Locality**: Co-location ensures related data is stored together for faster joins
 4. **Scalability**: Proper partitioning allows the cluster to scale horizontally
 5. **Resilience**: Replication ensures data availability even if some nodes fail
+6. **Storage Flexibility**: Different storage engines can be chosen based on workload characteristics
 
 ## Tuning Considerations
 
 1. **Zone Configuration**: Balance between data redundancy (replicas) and storage efficiency
-2. **Co-location Strategy**: Choose co-location keys based on common query patterns
-3. **Data Types**: Select appropriate Java types considering storage and performance implications
-4. **Partition Count**: Affects distribution granularity and rebalancing operations
+2. **Storage Profile Selection**: Choose appropriate storage engine based on read/write patterns
+3. **Co-location Strategy**: Choose co-location keys based on common query patterns
+4. **Data Types**: Select appropriate Java types considering storage and performance implications
+5. **Partition Count**: Affects distribution granularity and rebalancing operations
 
 ## Examples
 
-### Example 1: Creating and inserting a simple entity
+### Example 1: Creating and inserting a simple entity with SQL
 
-```java
-// Define the entity with annotations
-@Table(zone = @Zone(value = "Chinook", storageProfiles = "default"))
-public class Artist {
-    @Id
-    @Column(value = "ArtistId", nullable = false)
-    private Integer artistId;
-    
-    @Column(value = "Name", nullable = true)
-    private String name;
-    
-    // Constructors, getters, setters...
-}
+```sql
+-- Create a distribution zone
+CREATE ZONE IF NOT EXISTS ExampleZone 
+WITH STORAGE_PROFILES='default', PARTITIONS=20, REPLICAS=2;
 
-// Create the table in the catalog
-client.catalog().createTable(Artist.class);
+-- Create a table in the zone
+CREATE TABLE Artist (
+    ArtistId INT PRIMARY KEY,
+    Name VARCHAR
+) ZONE ExampleZone;
 
-// Insert an entity
-Artist artist = new Artist(1, "AC/DC");
-Table artistTable = client.tables().table("Artist");
-RecordView<Artist> artistView = artistTable.recordView(Artist.class);
-artistView.upsert(null, artist);
+-- Insert data
+INSERT INTO Artist VALUES (1, 'AC/DC');
 ```
 
-### Example 2: Creating co-located entities
+### Example 2: Java POJO with annotations for co-location
 
 ```java
 // Define a co-located entity
@@ -238,7 +245,9 @@ public class Album {
     // Constructors, getters, setters...
 }
 
-// Insert related entities
+// Create the table and insert related entities
+client.catalog().createTable(Album.class);
+
 Artist artist = new Artist(1, "AC/DC");
 Album album = new Album(1, "Back in Black", 1);
 
@@ -251,6 +260,6 @@ albumView.upsert(null, album);
 
 ## Further Reading
 
-- [Apache Ignite 3 Java API Documentation](https://ignite.apache.org/docs/latest/table-api/java)
-- [Distribution and Partitioning in Ignite 3](https://ignite.apache.org/docs/latest/concepts/distributed-data)
-- [Ignite 3 Storage Architecture](https://ignite.apache.org/docs/latest/concepts/storage)
+- [Apache Ignite 3 Java API Documentation](https://ignite.apache.org/docs/ignite3/latest/)
+- [Distribution Zones in Ignite 3](https://ignite.apache.org/docs/ignite3/latest/administrators-guide/distribution-zones)
+- [Storage Profiles and Engines](https://ignite.apache.org/docs/ignite3/latest/administrators-guide/storage)

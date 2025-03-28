@@ -26,11 +26,11 @@ public class Album {
 
 ### @Zone
 
-Defines which distribution zone the table belongs to.
+Defines which distribution zone the table belongs to and which storage profiles it can use.
 
 **Attributes**:
-- `value`: The name of the zone
-- `storageProfiles`: The storage profiles to use
+- `value`: The name of the distribution zone
+- `storageProfiles`: The storage profiles to use for this table
 
 **Example**:
 ```java
@@ -164,6 +164,63 @@ public class Track {
 }
 ```
 
+## SQL Equivalent
+
+The annotations in Java map to SQL DDL statements:
+
+Java annotation:
+```java
+@Table(
+    zone = @Zone(value = "Chinook", storageProfiles = "default")
+)
+public class Artist {
+    @Id
+    @Column(value = "ArtistId", nullable = false)
+    private Integer artistId;
+
+    @Column(value = "Name", nullable = true)
+    private String name;
+}
+```
+
+SQL equivalent:
+```sql
+CREATE TABLE Artist (
+    ArtistId INT PRIMARY KEY,
+    Name VARCHAR
+) ZONE Chinook STORAGE PROFILE 'default';
+```
+
+Java annotation with co-location:
+```java
+@Table(
+    zone = @Zone(value = "Chinook", storageProfiles = "default"),
+    colocateBy = @ColumnRef("ArtistId")
+)
+public class Album {
+    @Id
+    @Column(value = "AlbumId", nullable = false)
+    private Integer albumId;
+
+    @Column(value = "Title", nullable = false)
+    private String title;
+
+    @Id
+    @Column(value = "ArtistId", nullable = false)
+    private Integer artistId;
+}
+```
+
+SQL equivalent with co-location:
+```sql
+CREATE TABLE Album (
+    AlbumId INT,
+    Title VARCHAR NOT NULL,
+    ArtistId INT,
+    PRIMARY KEY (AlbumId, ArtistId)
+) ZONE Chinook STORAGE PROFILE 'default' COLOCATE BY (ArtistId);
+```
+
 ## Best Practices
 
 ### Primary Keys
@@ -190,6 +247,14 @@ public class Track {
 - Consider using the same name for related columns across tables
 - Follow a naming convention for primary and foreign keys
 
+### Distribution Zones and Storage Profiles
+
+- Group related tables in the same distribution zone
+- Choose appropriate replica counts based on data importance
+- Select storage profiles based on access patterns:
+  - Write-heavy workloads: Consider RocksDB storage engine
+  - Read-heavy or balanced workloads: Apache Ignite Page Memory engine
+
 ## Creating Tables from Annotations
 
 Tables are created from annotated POJOs using the `createTable` method of the `IgniteCatalog` API:
@@ -202,7 +267,7 @@ client.catalog().createTable(Artist.class);
 This method:
 1. Reads the annotations from the class
 2. Creates a table definition based on the annotations
-3. Creates the table in the Ignite catalog
+3. Creates the table in the Ignite catalog using the specified distribution zone and storage profile
 
 You can see this in action in the `TableUtils.java` class:
 
@@ -237,22 +302,33 @@ For complex types not directly supported by Ignite, you can implement custom typ
 
 ### Indexes
 
-While not demonstrated in this project, Ignite 3 supports index definitions through annotations.
+Ignite 3 supports index definitions through SQL:
 
-Example:
-```java
-@Index(name = "idx_artist_name", columns = {"Name"})
+```sql
+CREATE INDEX idx_artist_name ON Artist(Name);
 ```
-
-### Computed Columns
-
-Ignite 3 supports computed columns through annotations.
 
 ### Schema Evolution
 
-Ignite 3 allows for schema evolution, but care must be taken when modifying annotations to avoid data loss.
+Ignite 3 allows for schema evolution through SQL ALTER TABLE statements:
+
+```sql
+ALTER TABLE Artist ADD COLUMN Country VARCHAR;
+```
+
+## Comparison with Ignite 2.x Annotations
+
+Ignite 3 introduces several changes compared to Ignite 2.x:
+
+| Feature | Ignite 2.x | Ignite 3 |
+|---------|------------|----------|
+| Table Definition | `@QuerySqlTable` | `@Table` |
+| Zone/Region | `@CacheConfiguration` | `@Zone` |
+| Co-location | `@AffinityKeyMapped` | `colocateBy = @ColumnRef()` |
+| Storage | `@DataRegionConfiguration` | Storage Profiles in `@Zone` |
 
 ## Further Reading
 
-- [Apache Ignite 3 Java API Documentation](https://ignite.apache.org/docs/latest/table-api/java)
-- [Ignite 3 Annotation Documentation](https://ignite.apache.org/docs/latest/table-api/java-annotations)
+- [Apache Ignite 3 Java API Documentation](https://ignite.apache.org/docs/ignite3/latest/)
+- [Ignite 3 SQL Reference](https://ignite.apache.org/docs/ignite3/latest/sql-reference/ddl)
+- [Distribution Zones in Ignite 3](https://ignite.apache.org/docs/ignite3/latest/administrators-guide/distribution-zones)
