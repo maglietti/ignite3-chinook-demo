@@ -1,8 +1,10 @@
 package com.example.model;
 
 import org.apache.ignite.catalog.annotations.Column;
+import org.apache.ignite.catalog.annotations.ColumnRef;
 import org.apache.ignite.catalog.annotations.Table;
 import org.apache.ignite.catalog.annotations.Id;
+import org.apache.ignite.catalog.annotations.Index;
 import org.apache.ignite.catalog.annotations.Zone;
 
 import java.time.LocalDate;
@@ -12,7 +14,10 @@ import java.time.LocalDate;
  * This class maps to the Employee table which contains information about Chinook employees.
  */
 @Table(
-        zone = @Zone(value = "Chinook", storageProfiles = "default")
+        zone = @Zone(value = "Chinook", storageProfiles = "default"),
+        indexes = {
+            @Index(value = "IFK_EmployeeReportsTo", columns = { @ColumnRef("ReportsTo") })
+        }
 )
 public class Employee {
     // Primary key field

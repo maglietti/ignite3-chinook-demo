@@ -10,7 +10,10 @@ import java.time.LocalDate;
  */
 @Table(
         zone = @Zone(value = "Chinook", storageProfiles = "default"),
-        colocateBy = @ColumnRef("CustomerId")
+        colocateBy = @ColumnRef("CustomerId"),
+        indexes = {
+            @Index(value = "IFK_InvoiceCustomerId", columns = { @ColumnRef("CustomerId") })
+        }
 )
 public class Invoice {
     // Primary key field

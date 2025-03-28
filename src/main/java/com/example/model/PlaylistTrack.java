@@ -9,7 +9,11 @@ import org.apache.ignite.catalog.annotations.*;
  */
 @Table(
         zone = @Zone(value = "Chinook", storageProfiles = "default"),
-        colocateBy = @ColumnRef("PlaylistId")
+        colocateBy = @ColumnRef("PlaylistId"),
+        indexes = {
+            @Index(value = "IFK_PlaylistTrackPlaylistId", columns = { @ColumnRef("PlaylistId") }),
+            @Index(value = "IFK_PlaylistTrackTrackId", columns = { @ColumnRef("TrackId") })
+        }
 )
 public class PlaylistTrack {
     // Composite primary key fields

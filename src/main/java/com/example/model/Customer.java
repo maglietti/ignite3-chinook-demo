@@ -1,8 +1,10 @@
 package com.example.model;
 
 import org.apache.ignite.catalog.annotations.Column;
+import org.apache.ignite.catalog.annotations.ColumnRef;
 import org.apache.ignite.catalog.annotations.Table;
 import org.apache.ignite.catalog.annotations.Id;
+import org.apache.ignite.catalog.annotations.Index;
 import org.apache.ignite.catalog.annotations.Zone;
 
 /**
@@ -10,7 +12,10 @@ import org.apache.ignite.catalog.annotations.Zone;
  * This class maps to the Customer table which contains information about customers.
  */
 @Table(
-        zone = @Zone(value = "Chinook", storageProfiles = "default")
+        zone = @Zone(value = "Chinook", storageProfiles = "default"),
+        indexes = {
+            @Index(value = "IFK_CustomerSupportRepId", columns = { @ColumnRef("SupportRepId") })
+        }
 )
 public class Customer {
     // Primary key field

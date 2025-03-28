@@ -10,7 +10,12 @@ import java.math.BigDecimal;
  */
 @Table(
         zone = @Zone(value = "Chinook", storageProfiles = "default"),
-        colocateBy = @ColumnRef("AlbumId")
+        colocateBy = @ColumnRef("AlbumId"),
+        indexes = {
+            @Index(value = "IFK_TrackAlbumId", columns = { @ColumnRef("AlbumId") }),
+            @Index(value = "IFK_TrackGenreId", columns = { @ColumnRef("GenreId") }),
+            @Index(value = "IFK_TrackMediaTypeId", columns = { @ColumnRef("MediaTypeId") })
+        }
 )
 public class Track {
     // Primary key field

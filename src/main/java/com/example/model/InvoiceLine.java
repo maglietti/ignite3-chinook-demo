@@ -9,7 +9,11 @@ import java.math.BigDecimal;
  */
 @Table(
         zone = @Zone(value = "Chinook", storageProfiles = "default"),
-        colocateBy = @ColumnRef("InvoiceId")
+        colocateBy = @ColumnRef("InvoiceId"),
+        indexes = {
+            @Index(value = "IFK_InvoiceLineInvoiceId", columns = { @ColumnRef("InvoiceId") }),
+            @Index(value = "IFK_InvoiceLineTrackId", columns = { @ColumnRef("TrackId") })
+        }
 )
 public class InvoiceLine {
     // Primary key field

@@ -8,7 +8,10 @@ import org.apache.ignite.catalog.annotations.*;
  */
 @Table(
         zone = @Zone(value = "Chinook", storageProfiles = "default"),
-        colocateBy = @ColumnRef("ArtistId")
+        colocateBy = @ColumnRef("ArtistId"),
+        indexes = {
+            @Index(value = "IFK_AlbumArtistId", columns = { @ColumnRef("ArtistId") })
+        }
 )
 public class Album {
     // Primary key field
