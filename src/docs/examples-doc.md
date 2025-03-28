@@ -1,5 +1,3 @@
-Here's the complete improved examples-doc.md document:
-
 # Apache Ignite 3 Code Examples and Patterns
 
 This document provides practical code examples and patterns for working with Apache Ignite 3, using the Chinook database model.
@@ -816,7 +814,7 @@ docker run --rm -it --network=host apacheignite/ignite:3.0.0 cli
 connect http://localhost:10300
 
 # Start SQL CLI
-sql-cli
+sql
 
 # List zones
 SELECT * FROM system.zones;
