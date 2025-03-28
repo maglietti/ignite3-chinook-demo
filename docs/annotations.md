@@ -497,6 +497,6 @@ The BulkLoadApp executes these SQL statements to create the same schema structur
 
 - [Apache Ignite 3 Java API Documentation](https://ignite.apache.org/docs/ignite3/latest/)
 - [Ignite 3 SQL Reference](https://ignite.apache.org/docs/ignite3/latest/sql-reference/ddl)
-- [Distribution Zones in Ignite 3](./distribution-zones-doc.md)
-- [POJO Mapping in Ignite 3](./pojo-mapping-doc.md)
-- [Bulk Loading in Ignite 3](./bulk-load-doc.md)
+- [Distribution Zones in Ignite 3](./distribution-zones.md)
+- [POJO Mapping in Ignite 3](./pojo-mapping.md)
+- [Bulk Loading in Ignite 3](./bulk-load.md)

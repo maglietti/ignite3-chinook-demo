@@ -639,7 +639,7 @@ The bulk loading approach provides a fast and efficient way to populate the Chin
 ## Further Reading
 
 - [Apache Ignite 3 SQL Reference](https://ignite.apache.org/docs/ignite3/latest/sql-reference/ddl)
-- [Distribution Zones in Ignite 3](./distribution-zones-doc.md)
-- [POJO Mapping in Ignite 3](./pojo-mapping-doc.md)
-- [Storage Profiles in Ignite 3](./storage-profiles-doc.md)
-- [Examples and Patterns in Ignite 3](./examples-doc.md)
+- [Distribution Zones in Ignite 3](./distribution-zones.md)
+- [POJO Mapping in Ignite 3](./pojo-mapping.md)
+- [Storage Profiles in Ignite 3](./storage-profiles.md)
+- [Examples and Patterns in Ignite 3](./examples.md)

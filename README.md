@@ -73,7 +73,7 @@ For detailed documentation, see the [docs](./docs) directory:
 - [Storage Profiles](./docs/storage-profiles.md) - Storage engine options and configuration
 - [Annotations](./docs/annotations.md) - Reference for Ignite 3 annotations
 - [Examples](./docs/examples.md) - Code examples and patterns
-- [Bulk Loading](./docs/bulk-load-doc.md) - Loading data from SQL files
+- [Bulk Loading](./docs/bulk-load.md) - Loading data from SQL files
 
 ## License
 

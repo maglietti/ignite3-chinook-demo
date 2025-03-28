@@ -332,7 +332,7 @@ The BulkLoadApp preserves these storage profile assignments when executing the S
 ## Further Reading
 
 - [Storage Profiles and Engines Documentation](https://ignite.apache.org/docs/ignite3/latest/administrators-guide/storage)
-- [Distribution Zones in Ignite 3](./distribution-zones-doc.md)
+- [Distribution Zones in Ignite 3](./distribution-zones.md)
 - [Configuring Storage in Ignite 3](https://ignite.apache.org/docs/ignite3/latest/administrators-guide/config/storage/persistent)
-- [Bulk Loading in Ignite 3](./bulk-load-doc.md)
-- [POJO Mapping in Ignite 3](./pojo-mapping-doc.md)
+- [Bulk Loading in Ignite 3](./bulk-load.md)
+- [POJO Mapping in Ignite 3](./pojo-mapping.md)
