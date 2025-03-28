@@ -5,7 +5,7 @@ import org.apache.ignite.catalog.annotations.Table;
 import org.apache.ignite.catalog.annotations.Id;
 import org.apache.ignite.catalog.annotations.Zone;
 
-import java.sql.Timestamp;
+import java.time.LocalDate;
 
 /**
  * Represents an employee in the Chinook database.
@@ -33,10 +33,10 @@ public class Employee {
     private Integer reportsTo;
 
     @Column(value = "BirthDate", nullable = true)
-    private Timestamp birthDate;
+    private LocalDate birthDate;
 
     @Column(value = "HireDate", nullable = true)
-    private Timestamp hireDate;
+    private LocalDate hireDate;
 
     @Column(value = "Address", nullable = true)
     private String address;
@@ -100,7 +100,7 @@ public class Employee {
      * @param email The email of the employee
      */
     public Employee(Integer employeeId, String lastName, String firstName, String title,
-                    Integer reportsTo, Timestamp birthDate, Timestamp hireDate, String address,
+                    Integer reportsTo, LocalDate birthDate, LocalDate hireDate, String address,
                     String city, String state, String country, String postalCode, String phone,
                     String fax, String email) {
         this.employeeId = employeeId;
@@ -162,19 +162,19 @@ public class Employee {
         this.reportsTo = reportsTo;
     }
 
-    public Timestamp getBirthDate() {
+    public LocalDate getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(Timestamp birthDate) {
+    public void setBirthDate(LocalDate birthDate) {
         this.birthDate = birthDate;
     }
 
-    public Timestamp getHireDate() {
+    public LocalDate getHireDate() {
         return hireDate;
     }
 
-    public void setHireDate(Timestamp hireDate) {
+    public void setHireDate(LocalDate hireDate) {
         this.hireDate = hireDate;
     }
 

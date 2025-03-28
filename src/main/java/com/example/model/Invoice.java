@@ -2,7 +2,7 @@ package com.example.model;
 
 import org.apache.ignite.catalog.annotations.*;
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+import java.time.LocalDate;
 
 /**
  * Represents an invoice in the Chinook database.
@@ -24,7 +24,7 @@ public class Invoice {
     private Integer customerId;
 
     @Column(value = "InvoiceDate", nullable = false)
-    private Timestamp invoiceDate;
+    private LocalDate invoiceDate;
 
     @Column(value = "BillingAddress", nullable = true)
     private String billingAddress;
@@ -57,7 +57,7 @@ public class Invoice {
      * @param invoiceDate The date of the invoice
      * @param total The total amount of the invoice
      */
-    public Invoice(Integer invoiceId, Integer customerId, Timestamp invoiceDate, BigDecimal total) {
+    public Invoice(Integer invoiceId, Integer customerId, LocalDate invoiceDate, BigDecimal total) {
         this.invoiceId = invoiceId;
         this.customerId = customerId;
         this.invoiceDate = invoiceDate;
@@ -77,7 +77,7 @@ public class Invoice {
      * @param billingPostalCode The billing postal code
      * @param total The total amount of the invoice
      */
-    public Invoice(Integer invoiceId, Integer customerId, Timestamp invoiceDate, 
+    public Invoice(Integer invoiceId, Integer customerId, LocalDate invoiceDate, 
                    String billingAddress, String billingCity, String billingState, 
                    String billingCountry, String billingPostalCode, BigDecimal total) {
         this.invoiceId = invoiceId;
@@ -109,11 +109,11 @@ public class Invoice {
         this.customerId = customerId;
     }
 
-    public Timestamp getInvoiceDate() {
+    public LocalDate getInvoiceDate() {
         return invoiceDate;
     }
 
-    public void setInvoiceDate(Timestamp invoiceDate) {
+    public void setInvoiceDate(LocalDate invoiceDate) {
         this.invoiceDate = invoiceDate;
     }
 
