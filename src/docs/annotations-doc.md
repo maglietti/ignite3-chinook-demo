@@ -9,11 +9,13 @@ This document provides a comprehensive reference for the annotations used in Apa
 Marks a Java class as an Ignite table and configures its properties.
 
 **Attributes**:
+
 - `zone`: Defines which distribution zone the table belongs to
 - `colocateBy`: Specifies which column should be used for co-location
 - `name`: (Optional) Specifies the table name; defaults to the class name
 
 **Example**:
+
 ```java
 @Table(
     zone = @Zone(value = "Chinook", storageProfiles = "default"),
@@ -29,10 +31,12 @@ public class Album {
 Defines which distribution zone the table belongs to and which storage profiles it can use.
 
 **Attributes**:
+
 - `value`: The name of the distribution zone
 - `storageProfiles`: The storage profiles to use for this table
 
 **Example**:
+
 ```java
 @Zone(value = "Chinook", storageProfiles = "default")
 ```
@@ -42,6 +46,7 @@ Defines which distribution zone the table belongs to and which storage profiles 
 Maps a Java field to a table column with specific properties.
 
 **Attributes**:
+
 - `value`: The name of the column
 - `nullable`: Specifies whether the column can contain NULL values
 - `length`: (Optional) For string columns, specifies the maximum length
@@ -49,6 +54,7 @@ Maps a Java field to a table column with specific properties.
 - `scale`: (Optional) For decimal columns, specifies the scale
 
 **Example**:
+
 ```java
 @Column(value = "Name", nullable = false, length = 120)
 private String name;
@@ -59,6 +65,7 @@ private String name;
 Marks a field as part of the primary key.
 
 **Example**:
+
 ```java
 @Id
 @Column(value = "ArtistId", nullable = false)
@@ -70,9 +77,11 @@ private Integer artistId;
 References a column for co-location purposes.
 
 **Attributes**:
+
 - `value`: The name of the referenced column
 
 **Example**:
+
 ```java
 @Table(
     zone = @Zone(value = "Chinook", storageProfiles = "default"),
@@ -169,6 +178,7 @@ public class Track {
 The annotations in Java map to SQL DDL statements:
 
 Java annotation:
+
 ```java
 @Table(
     zone = @Zone(value = "Chinook", storageProfiles = "default")
@@ -184,6 +194,7 @@ public class Artist {
 ```
 
 SQL equivalent:
+
 ```sql
 CREATE TABLE Artist (
     ArtistId INT PRIMARY KEY,
@@ -192,6 +203,7 @@ CREATE TABLE Artist (
 ```
 
 Java annotation with co-location:
+
 ```java
 @Table(
     zone = @Zone(value = "Chinook", storageProfiles = "default"),
@@ -212,6 +224,7 @@ public class Album {
 ```
 
 SQL equivalent with co-location:
+
 ```sql
 CREATE TABLE Album (
     AlbumId INT,
@@ -265,6 +278,7 @@ client.catalog().createTable(Artist.class);
 ```
 
 This method:
+
 1. Reads the annotations from the class
 2. Creates a table definition based on the annotations
 3. Creates the table in the Ignite catalog using the specified distribution zone and storage profile

@@ -58,6 +58,7 @@ Java POJOs are decorated with Ignite annotations to define the schema:
 - `@ColumnRef`: References columns for co-location purposes
 
 Example from `Artist.java`:
+
 ```java
 @Table(
         zone = @Zone(value = "Chinook", storageProfiles = "default")

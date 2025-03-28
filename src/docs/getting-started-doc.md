@@ -40,7 +40,7 @@ docker run --rm -it --network=host -e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 apacheignit
 
 This command starts the Ignite CLI in an interactive Docker container. Inside the CLI:
 
-```
+```bash
 connect http://localhost:10300
 cluster init --name=ignite3 --metastorage-group=node1,node2,node3
 exit
@@ -74,6 +74,7 @@ ZoneDefinition zoneChinookReplicated = ZoneDefinition.builder("ChinookReplicated
 ```
 
 Each zone is configured with:
+
 - A name
 - Number of replicas (copies of data)
 - Number of partitions (how data is split)
@@ -94,6 +95,7 @@ mvn compile exec:java@create-tables
 ```
 
 This application will:
+
 - Create the required distribution zones
 - Create all Chinook data model tables
 - Handle proper error conditions if tables already exist
@@ -109,6 +111,7 @@ mvn compile exec:java@load-data
 ```
 
 This will:
+
 - Add sample artists, albums, and tracks
 - Demonstrate batch data operations
 - Create sample related entities with proper relationships
@@ -124,6 +127,7 @@ mvn compile exec:java@run-main
 ```
 
 The application demonstrates:
+
 - Connecting to an Ignite cluster
 - Performing CRUD operations
 - Using transactions
@@ -147,6 +151,7 @@ The application demonstrates:
 - **MediaType.java**: Represents media format types
 
 Each model class uses annotations to define:
+
 - Table schema
 - Distribution zone
 - Co-location strategy (where applicable)

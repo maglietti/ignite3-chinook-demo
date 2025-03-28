@@ -52,6 +52,7 @@ erDiagram
 Represents music artists (bands or individuals) who create albums.
 
 **Fields**:
+
 - `ArtistId`: Unique identifier (Primary Key)
 - `Name`: Artist name
 
@@ -78,6 +79,7 @@ public class Artist {
 Represents music albums created by artists.
 
 **Fields**:
+
 - `AlbumId`: Unique identifier (Primary Key)
 - `Title`: Album title
 - `ArtistId`: Reference to the Artist (Foreign Key)
@@ -110,6 +112,7 @@ public class Album {
 Represents individual songs or compositions on an album.
 
 **Fields**:
+
 - `TrackId`: Unique identifier (Primary Key)
 - `Name`: Track name
 - `AlbumId`: Reference to the Album (Foreign Key)
@@ -166,6 +169,7 @@ public class Track {
 Represents music genres for classification.
 
 **Fields**:
+
 - `GenreId`: Unique identifier (Primary Key)
 - `Name`: Genre name
 
@@ -192,6 +196,7 @@ public class Genre {
 Represents different media formats (e.g., MPEG, AAC).
 
 **Fields**:
+
 - `MediaTypeId`: Unique identifier (Primary Key)
 - `Name`: Media type name
 
