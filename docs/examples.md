@@ -808,7 +808,7 @@ Interacting with Ignite 3 via CLI:
 
 ```bash
 # Start the CLI
-docker run --rm -it --network=host apacheignite/ignite:3.0.0 cli
+docker run --rm -it --network=host -e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 apacheignite/ignite:3.0.0 cli
 
 # Connect to the cluster
 connect http://localhost:10300

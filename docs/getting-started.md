@@ -284,9 +284,9 @@ Each model class uses annotations to define:
 You can interact with the Ignite cluster using SQL. The Ignite CLI provides an interactive SQL shell:
 
 ```bash
-docker run --rm -it --network=host apacheignite/ignite:3.0.0 cli
+docker run --rm -it --network=host -e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 apacheignite/ignite:3.0.0 cli
 connect http://localhost:10300
-sql-cli
+sql
 ```
 
 Once in the SQL shell, you can run queries:

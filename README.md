@@ -31,7 +31,7 @@ docker-compose up -d
 2. **Initialize the cluster**
 
 ```bash
-docker run --rm -it --network=host apacheignite/ignite:3.0.0 cli
+docker run --rm -it --network=host -e LANG=C.UTF-8 -e LC_ALL=C.UTF-8 apacheignite/ignite:3.0.0 cli
 connect http://localhost:10300
 cluster init --name=ignite3 --metastorage-group=node1,node2,node3
 exit
