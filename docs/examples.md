@@ -820,7 +820,7 @@ sql
 SELECT * FROM system.zones;
 
 # List tables
-SHOW TABLES;
+SELECT * from SYSTEM.TABLES;
 
 # Create a distribution zone
 CREATE ZONE IF NOT EXISTS ExampleZone 

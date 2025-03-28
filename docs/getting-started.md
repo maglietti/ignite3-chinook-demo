@@ -293,7 +293,7 @@ Once in the SQL shell, you can run queries:
 
 ```sql
 -- List all tables
-SHOW TABLES;
+SELECT * from SYSTEM.TABLES;
 
 -- Query the Artist table
 SELECT * FROM Artist;
