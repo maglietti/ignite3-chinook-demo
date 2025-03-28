@@ -30,8 +30,10 @@ public class CreateTablesApp {
                 System.out.println("Do you want to drop existing tables and recreate them? (Y/N)");
 
                 // Simple way to get user input
-                java.util.Scanner scanner = new java.util.Scanner(System.in);
-                String input = scanner.nextLine().trim().toUpperCase();
+                String input;
+                try (java.util.Scanner scanner = new java.util.Scanner(System.in)) {
+                    input = scanner.nextLine().trim().toUpperCase();
+                }
 
                 if (input.equals("Y")) {
                     // Drop existing tables

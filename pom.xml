@@ -143,6 +143,12 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>bulk-load</id>
+                        <configuration>
+                            <mainClass>com.example.app.BulkLoadApp</mainClass>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>run-main</id>
                         <configuration>
                             <mainClass>com.example.app.Main</mainClass>
