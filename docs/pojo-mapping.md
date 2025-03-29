@@ -51,7 +51,7 @@ flowchart TD
 
 Java POJOs are decorated with Ignite annotations to define the schema:
 
-- `@Table`: Marks a class as an Ignite table and defines properties like zone and co-location
+- `@Table`: Marks a class as an Ignite table and defines properties like zone, co-location, and indexes.
 - `@Column`: Maps Java fields to table columns with specific properties
 - `@Id`: Marks fields that form the primary key
 - `@Zone`: Specifies which distribution zone the table belongs to
@@ -61,15 +61,25 @@ Example from `Artist.java`:
 
 ```java
 @Table(
-        zone = @Zone(value = "Chinook", storageProfiles = "default")
+        zone = @Zone(value = "Chinook", storageProfiles = "default"),
+        colocateBy = @ColumnRef("ArtistId"),
+        indexes = {
+            @Index(value = "IFK_AlbumArtistId", columns = { @ColumnRef("ArtistId") })
+        }
 )
-public class Artist {
+public class Album {
+    // Primary key field
+    @Id
+    @Column(value = "AlbumId", nullable = false)
+    private Integer albumId;
+
+    @Column(value = "Title", nullable = false)
+    private String title;
+
+    // Foreign key to Artist table
     @Id
     @Column(value = "ArtistId", nullable = false)
     private Integer artistId;
-
-    @Column(value = "Name", nullable = true)
-    private String name;
     
     // Methods omitted for brevity
 }

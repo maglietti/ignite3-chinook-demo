@@ -69,30 +69,30 @@ When you run the `BulkLoadApp`, it scans the resources directory for SQL files a
 When you run the `BulkLoadApp`, you'll see the following user interface:
 
 1. First, the app connects to the cluster:
-   ```
+   ```bash
    >>> Connected to the cluster: [localhost:10800]
    ```
 
 2. If existing tables are detected, the app prompts you to drop them:
-   ```
+   ```bash
    Existing tables detected in the database.
    Do you want to drop existing tables before loading new data? (Y/N)
    ```
 
 3. If you choose to drop tables, it may also ask about dropping zones:
-   ```
+   ```bash
    Do you also want to drop distribution zones? (Y/N)
    ```
 
 4. The app then lists available SQL files:
-   ```
+   ```bash
    Available SQL files:
    1. chinook-ignite3.sql
    Select a file to load (1-1): 1
    ```
 
 5. After selecting a file, it parses the SQL statements and asks for confirmation:
-   ```
+   ```bash
    Selected file: chinook-ignite3.sql
    Parsed 127 SQL statements from file.
    This will create tables and load data from the SQL file.
@@ -100,7 +100,7 @@ When you run the `BulkLoadApp`, you'll see the following user interface:
    ```
 
 6. Finally, it executes the SQL statements and verifies the results:
-   ```
+   ```text
    === Starting bulk load from SQL file ===
    === Processing distribution zones, table definitions, and indexes ===
    [1/127] Executing: CREATE ZONE CREATE ZONE Chinook WITH STORAGE_PROFILES='defaul...
@@ -168,7 +168,7 @@ public static List<String> parseSqlStatementsFromReader(BufferedReader reader) t
         for (int i = 0; i < line.length(); i++) {
             char c = line.charAt(i);
             
-            // Handle quotes to avoid detecting statement delimiters inside quoted strings
+            // Handle quotes (to avoid detecting statement delimiters inside quoted strings)
             if (c == '\'' && (i == 0 || line.charAt(i-1) != '\\')) {
                 insideQuote = !insideQuote;
             }
@@ -206,14 +206,55 @@ public static List<String> parseSqlStatementsFromReader(BufferedReader reader) t
 The bulk loader first processes zone and table creation statements:
 
 ```java
-// First, process zones and DDL statements
+// First, process zones, tables, and index statements
+System.out.println("=== Processing distribution zones, table definitions, and indexes ===");
 for (String statement : statements) {
-    // Skip non-zone/table statements in first pass
-    if (!isZoneOrTableStatement(statement)) {
+    currentStatement++;
+    
+    // Skip non-zone/table/index statements in first pass
+    if (!isSchemaStatement(statement)) {
         continue;
     }
-    // Execute the statement
-    client.sql().execute(null, statement);
+    
+    try {
+        // Get statement type for display
+        String stmtType = "SQL";
+        if (isCreateZoneStatement(statement)) stmtType = "CREATE ZONE";
+        else if (isCreateTableStatement(statement)) stmtType = "CREATE TABLE";
+        else if (isCreateIndexStatement(statement)) stmtType = "CREATE INDEX";
+        else if (isDropStatement(statement)) stmtType = "DROP";
+        
+        // For CREATE INDEX statements, extract the table and index name
+        String displayInfo = "";
+        if (isCreateIndexStatement(statement)) {
+            String indexName = extractIndexName(statement);
+            String tableName = extractIndexTable(statement);
+            displayInfo = indexName + " ON " + tableName;
+        } else {
+            // For other statements, just show a preview
+            displayInfo = statement.length() > 70 
+                ? statement.substring(0, 67) + "..." 
+                : statement;
+        }
+        
+        System.out.println("[" + currentStatement + "/" + totalStatements + "] Executing: " + stmtType + " " + displayInfo);
+        
+        // Execute the statement
+        client.sql().execute(null, statement);
+        successCount++;
+        System.out.println("  Success!");
+    } catch (Exception e) {
+        // Handle exceptions differently based on statement type
+        if (isCreateZoneStatement(statement)) {
+            System.out.println("  Note: Zone may already exist, continuing: " + e.getMessage());
+        } else if (isDropStatement(statement)) {
+            System.out.println("  Note: Drop operation failed, may be due to dependencies or non-existent object: " + e.getMessage());
+        } else if (isCreateIndexStatement(statement)) {
+            System.out.println("  Note: Index creation failed, may already exist: " + e.getMessage());
+        } else {
+            System.err.println("  Error executing statement: " + e.getMessage());
+        }
+    }
 }
 ```
 
@@ -229,13 +270,59 @@ After the schema is created, the bulk loader processes data insertion statements
 
 ```java
 // Then, process all DML statements
+System.out.println("\n=== Loading data (DML statements) ===");
+currentStatement = 0;
+
 for (String statement : statements) {
-    // Skip zone/table statements in second pass
-    if (isZoneOrTableStatement(statement)) {
+    currentStatement++;
+    
+    // Skip schema statements in second pass
+    if (isSchemaStatement(statement)) {
         continue;
     }
-    // Execute the statement
-    client.sql().execute(null, statement);
+    
+    try {
+        // Get statement type and target table
+        String statementType = getStatementType(statement);
+        String targetTable = getTargetTable(statement);
+        
+        // For INSERT statements, check if batch splitting is needed
+        if (statementType.equals("INSERT")) {
+            int approxRows = countInsertRows(statement);
+            System.out.println("[" + currentStatement + "/" + totalStatements + "] Found " + 
+                                statementType + " for table " + targetTable + 
+                                " with " + approxRows + " rows");
+            
+            if (approxRows > MAX_BATCH_SIZE) {
+                System.out.println("  Splitting large INSERT into smaller batches...");
+                List<String> batches = splitLargeInsert(statement, MAX_BATCH_SIZE);
+                System.out.println("  Created " + batches.size() + " batches");
+                
+                // Execute each batch
+                int batchNum = 1;
+                for (String batch : batches) {
+                    System.out.println("  Executing batch " + batchNum + "/" + batches.size());
+                    client.sql().execute(null, batch);
+                    batchNum++;
+                }
+                
+                successCount++;
+                System.out.println("  All batches executed successfully!");
+                continue;
+            }
+        }
+        
+        // For non-INSERT statements or small INSERTs, execute directly
+        System.out.println("[" + currentStatement + "/" + totalStatements + "] Executing " + 
+                            statementType + " for table " + targetTable);
+        
+        // Execute the statement
+        client.sql().execute(null, statement);
+        successCount++;
+        System.out.println("  Success!");
+    } catch (Exception e) {
+        System.err.println("  Error executing statement: " + e.getMessage());
+    }
 }
 ```
 
@@ -253,6 +340,9 @@ For very large INSERT statements, the `BulkLoadApp` splits them into smaller bat
 // For INSERT statements, check if batch splitting is needed
 if (statementType.equals("INSERT")) {
     int approxRows = countInsertRows(statement);
+    System.out.println("[" + currentStatement + "/" + totalStatements + "] Found " + 
+                        statementType + " for table " + targetTable + 
+                        " with " + approxRows + " rows");
     
     if (approxRows > MAX_BATCH_SIZE) {
         System.out.println("  Splitting large INSERT into smaller batches...");
@@ -299,7 +389,42 @@ public static List<String> splitLargeInsert(String statement, int batchSize) {
     
     // Parse the value groups
     List<String> valueGroups = new ArrayList<>();
-    // ... parsing logic ...
+    StringBuilder currentGroup = new StringBuilder();
+    int parenthesesLevel = 0;
+    boolean inQuote = false;
+    
+    for (int i = 0; i < valuesPart.length(); i++) {
+        char c = valuesPart.charAt(i);
+        
+        // Track quotes to avoid splitting inside quoted strings
+        if (c == '\'' && (i == 0 || valuesPart.charAt(i-1) != '\\')) {
+            inQuote = !inQuote;
+        }
+        
+        // Track parentheses level
+        if (c == '(' && !inQuote) parenthesesLevel++;
+        if (c == ')' && !inQuote) parenthesesLevel--;
+        
+        // Add the character to the current group
+        currentGroup.append(c);
+        
+        // If we've closed a top-level value group
+        if (parenthesesLevel == 0 && currentGroup.length() > 0 && c == ')') {
+            // Remove trailing commas
+            String group = currentGroup.toString().trim();
+            if (group.endsWith(",")) {
+                group = group.substring(0, group.length() - 1).trim();
+            }
+            
+            valueGroups.add(group);
+            currentGroup = new StringBuilder();
+            
+            // Skip past any commas
+            while (i + 1 < valuesPart.length() && valuesPart.charAt(i + 1) == ',') {
+                i++;
+            }
+        }
+    }
     
     // Create batched INSERT statements
     for (int i = 0; i < valueGroups.size(); i += batchSize) {

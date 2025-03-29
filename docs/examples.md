@@ -7,14 +7,8 @@ This document provides practical code examples and patterns for working with Apa
 ```java
 public static IgniteClient connectToCluster() {
     try {
-        // Define node addresses
-        String[] nodeAddresses = {
-            "localhost:10800", "localhost:10801", "localhost:10802"
-        };
-        
-        // Build the client and connect
         IgniteClient client = IgniteClient.builder()
-                .addresses(nodeAddresses)
+                .addresses(NODE_ADDRESSES)
                 .build();
 
         System.out.println("Connected to the cluster: " + client.connections());
@@ -48,7 +42,7 @@ public static boolean createTables(IgniteClient client) {
     try {
         System.out.println("=== Creating tables ===");
 
-        // Create tables from annotated classes
+        // Use IgniteCatalog.createTable to create tables from annotated classes
         System.out.println("--- Creating Artist table");
         client.catalog().createTable(Artist.class);
 
@@ -106,8 +100,6 @@ public static void createTablesWithSql(IgniteClient client) {
     }
 }
 ```
-
-This method is used by the `BulkLoadApp` to create tables from SQL statements in a file.
 
 ## Basic CRUD Operations
 
