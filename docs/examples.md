@@ -846,7 +846,7 @@ exit
 | Data Loading | Individual API calls | SQL INSERT statements |
 | Flexibility | More control over each step | All-in-one approach |
 | Performance | Good for small datasets | Better for large datasets |
-| Extensibility | Easy to extend with custom code | Requires SQL knowledge |
+| Extensibility | Easy to extend with custom code | Relies on SQL knowledge |
 | Error Handling | Fine-grained error handling | Statement-level error handling |
 | Learning Curve | Requires understanding of Java API | Requires SQL knowledge |
 

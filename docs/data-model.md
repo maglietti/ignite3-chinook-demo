@@ -160,7 +160,10 @@ Represents music albums created by artists.
 ```java
 @Table(
         zone = @Zone(value = "Chinook", storageProfiles = "default"),
-        colocateBy = @ColumnRef("ArtistId")
+        colocateBy = @ColumnRef("ArtistId"),
+        indexes = {
+            @Index(value = "IFK_AlbumArtistId", columns = { @ColumnRef("ArtistId") })
+        }
 )
 public class Album {
     @Id
@@ -199,7 +202,12 @@ Represents individual songs or compositions on an album.
 ```java
 @Table(
         zone = @Zone(value = "Chinook", storageProfiles = "default"),
-        colocateBy = @ColumnRef("AlbumId")
+        colocateBy = @ColumnRef("AlbumId"),
+        indexes = {
+            @Index(value = "IFK_TrackAlbumId", columns = { @ColumnRef("AlbumId") }),
+            @Index(value = "IFK_TrackGenreId", columns = { @ColumnRef("GenreId") }),
+            @Index(value = "IFK_TrackMediaTypeId", columns = { @ColumnRef("MediaTypeId") })
+        }
 )
 public class Track {
     @Id
@@ -481,34 +489,6 @@ client.transactions().runInTransaction(tx -> {
     
     return true;
 });
-```
-
-## Extending the Model
-
-To extend the Chinook model with additional entities:
-
-1. Create a new Java class with appropriate annotations
-2. Define the class fields with @Column and @Id annotations
-3. Include appropriate constructors, getters, and setters
-4. Update the `TableUtils.createTables()` method to create the new table
-5. Add methods to `ChinookUtils.java` or `DataUtils.java` for common operations on the new entity
-
-For example, to add a `Playlist` entity:
-
-```java
-@Table(
-        zone = @Zone(value = "Chinook", storageProfiles = "default")
-)
-public class Playlist {
-    @Id
-    @Column(value = "PlaylistId", nullable = false)
-    private Integer playlistId;
-
-    @Column(value = "Name", nullable = false)
-    private String name;
-    
-    // Constructors, getters, setters...
-}
 ```
 
 ## Further Reading

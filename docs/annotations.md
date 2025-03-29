@@ -390,66 +390,6 @@ public static boolean createTables(IgniteClient client) {
 }
 ```
 
-## Advanced Features
-
-### Custom Type Handlers
-
-For complex types not directly supported by Ignite, you can implement custom type handlers.
-
-### Schema Evolution
-
-Ignite 3 allows for schema evolution through SQL ALTER TABLE statements:
-
-```sql
-ALTER TABLE Artist ADD COLUMN Country VARCHAR;
-```
-
-## Troubleshooting Annotation Issues
-
-### Common Issues
-
-1. **Missing Primary Key**:
-   - Error: `Table must have at least one primary key column`
-   - Solution: Add `@Id` annotation to at least one field
-
-2. **Zone Not Found**:
-   - Error: `Zone 'ZoneName' not found`
-   - Solution: Ensure zone is created before creating tables
-
-3. **Incompatible Data Types**:
-   - Error: `Cannot convert from X to Y`
-   - Solution: Ensure Java type is compatible with database type
-
-4. **Co-location Key Not in Primary Key**:
-   - Error: `Co-location column must be a part of the primary key`
-   - Solution: Add `@Id` annotation to co-location field
-
-5. **Invalid Column Definition**:
-   - Error: `Invalid column definition`
-   - Solution: Check annotation parameters for correctness
-
-### Resolution Steps
-
-1. **Check Zone Existence**:
-   ```java
-   if (!TableUtils.zoneExists(client, "Chinook")) {
-       TableUtils.createDistributionZones(client);
-   }
-   ```
-
-2. **Verify Table Annotations**:
-   - Ensure all required annotations are present
-   - Check spelling and case sensitivity in annotation values
-   - Ensure referenced tables/columns exist
-
-3. **Test Simple Cases First**:
-   - Start with simple table definitions
-   - Add complexity incrementally
-
-4. **Examine Error Messages**:
-   - Ignite provides detailed error messages
-   - Look for specific annotation issues mentioned
-
 ## Comparison with Ignite 2.x Annotations
 
 Ignite 3 introduces several changes compared to Ignite 2.x:
@@ -462,36 +402,6 @@ Ignite 3 introduces several changes compared to Ignite 2.x:
 | Storage | `@DataRegionConfiguration` | Storage Profiles in `@Zone` |
 | Indexes | `@QuerySqlField(index=true)` | `@Index` |
 
-## Integration with BulkLoadApp
-
-The BulkLoadApp uses SQL statements instead of annotations to create tables. The `chinook-ignite3.sql` file contains the SQL equivalents of the annotated POJOs.
-
-For example, this POJO definition:
-
-```java
-@Table(
-    zone = @Zone(value = "Chinook", storageProfiles = "default")
-)
-public class Artist {
-    @Id
-    @Column(value = "ArtistId", nullable = false)
-    private Integer artistId;
-
-    @Column(value = "Name", nullable = true)
-    private String name;
-}
-```
-
-Would be represented in SQL as:
-
-```sql
-CREATE TABLE Artist (
-    ArtistId INT PRIMARY KEY,
-    Name VARCHAR
-) ZONE Chinook STORAGE PROFILE 'default';
-```
-
-The BulkLoadApp executes these SQL statements to create the same schema structure that would be created from the annotated POJOs.
 
 ## Further Reading
 

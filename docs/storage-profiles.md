@@ -53,7 +53,7 @@ Apache Ignite 3 currently supports two main storage engines:
    - Optimized for write-heavy workloads
    - Industry standard for high-write scenarios
 
-## Performance Benchmarks
+## Performance Characteristics
 
 Here are some approximate performance characteristics of different storage profiles:
 
@@ -143,8 +143,8 @@ Storage profiles are configured at the node level. In a production environment, 
 Using the CLI:
 
 ```bash
-# Show current storage profiles
-node config show ignite.storage.profiles
+# Show current storage configuration
+node config show ignite.storage
 
 # Add a new profile using RocksDB
 node config update "ignite.storage.profiles:{rocksProfile{engine:rocksdb,size:10000}}"
@@ -307,27 +307,6 @@ long defaultWriteTime = System.currentTimeMillis() - startTime;
   - Example: Metrics older than 24 hours
   - Configuration: RocksDB storage profile
   - Benefit: Better compression and efficient storage of historical data
-
-## Integration with BulkLoadApp
-
-When using the BulkLoadApp to load data from SQL files, storage profiles are specified in the `CREATE TABLE` statements:
-
-```sql
--- Create a table with default storage profile
-CREATE TABLE Artist (
-    ArtistId INT PRIMARY KEY,
-    Name VARCHAR
-) ZONE Chinook STORAGE PROFILE 'default';
-
--- Create a table with custom storage profile
-CREATE TABLE LogEntry (
-    Id BIGINT PRIMARY KEY,
-    Timestamp TIMESTAMP,
-    Message VARCHAR
-) ZONE Logs STORAGE PROFILE 'rocksdb-profile';
-```
-
-The BulkLoadApp preserves these storage profile assignments when executing the SQL statements, ensuring that tables are created with the appropriate storage configuration.
 
 ## Further Reading
 

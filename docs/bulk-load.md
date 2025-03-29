@@ -69,30 +69,30 @@ When you run the `BulkLoadApp`, it scans the resources directory for SQL files a
 When you run the `BulkLoadApp`, you'll see the following user interface:
 
 1. First, the app connects to the cluster:
-   ```bash
+   ```
    >>> Connected to the cluster: [localhost:10800]
    ```
 
 2. If existing tables are detected, the app prompts you to drop them:
-   ```bash
+   ```
    Existing tables detected in the database.
    Do you want to drop existing tables before loading new data? (Y/N)
    ```
 
 3. If you choose to drop tables, it may also ask about dropping zones:
-   ```bash
+   ```
    Do you also want to drop distribution zones? (Y/N)
    ```
 
 4. The app then lists available SQL files:
-   ```bash
+   ```
    Available SQL files:
    1. chinook-ignite3.sql
    Select a file to load (1-1): 1
    ```
 
 5. After selecting a file, it parses the SQL statements and asks for confirmation:
-   ```bash
+   ```
    Selected file: chinook-ignite3.sql
    Parsed 127 SQL statements from file.
    This will create tables and load data from the SQL file.
@@ -100,7 +100,7 @@ When you run the `BulkLoadApp`, you'll see the following user interface:
    ```
 
 6. Finally, it executes the SQL statements and verifies the results:
-   ```text
+   ```
    === Starting bulk load from SQL file ===
    === Processing distribution zones, table definitions, and indexes ===
    [1/127] Executing: CREATE ZONE CREATE ZONE Chinook WITH STORAGE_PROFILES='defaul...
@@ -168,7 +168,7 @@ public static List<String> parseSqlStatementsFromReader(BufferedReader reader) t
         for (int i = 0; i < line.length(); i++) {
             char c = line.charAt(i);
             
-            // Handle quotes (to avoid detecting statement delimiters inside quoted strings)
+            // Handle quotes to avoid detecting statement delimiters inside quoted strings
             if (c == '\'' && (i == 0 || line.charAt(i-1) != '\\')) {
                 insideQuote = !insideQuote;
             }
@@ -206,55 +206,15 @@ public static List<String> parseSqlStatementsFromReader(BufferedReader reader) t
 The bulk loader first processes zone and table creation statements:
 
 ```java
-// First, process zones, tables, and index statements
-System.out.println("=== Processing distribution zones, table definitions, and indexes ===");
+// First, process zones and DDL statements
 for (String statement : statements) {
-    currentStatement++;
-    
-    // Skip non-zone/table/index statements in first pass
+    // Skip non-zone/table statements in first pass
     if (!isSchemaStatement(statement)) {
         continue;
     }
     
-    try {
-        // Get statement type for display
-        String stmtType = "SQL";
-        if (isCreateZoneStatement(statement)) stmtType = "CREATE ZONE";
-        else if (isCreateTableStatement(statement)) stmtType = "CREATE TABLE";
-        else if (isCreateIndexStatement(statement)) stmtType = "CREATE INDEX";
-        else if (isDropStatement(statement)) stmtType = "DROP";
-        
-        // For CREATE INDEX statements, extract the table and index name
-        String displayInfo = "";
-        if (isCreateIndexStatement(statement)) {
-            String indexName = extractIndexName(statement);
-            String tableName = extractIndexTable(statement);
-            displayInfo = indexName + " ON " + tableName;
-        } else {
-            // For other statements, just show a preview
-            displayInfo = statement.length() > 70 
-                ? statement.substring(0, 67) + "..." 
-                : statement;
-        }
-        
-        System.out.println("[" + currentStatement + "/" + totalStatements + "] Executing: " + stmtType + " " + displayInfo);
-        
-        // Execute the statement
-        client.sql().execute(null, statement);
-        successCount++;
-        System.out.println("  Success!");
-    } catch (Exception e) {
-        // Handle exceptions differently based on statement type
-        if (isCreateZoneStatement(statement)) {
-            System.out.println("  Note: Zone may already exist, continuing: " + e.getMessage());
-        } else if (isDropStatement(statement)) {
-            System.out.println("  Note: Drop operation failed, may be due to dependencies or non-existent object: " + e.getMessage());
-        } else if (isCreateIndexStatement(statement)) {
-            System.out.println("  Note: Index creation failed, may already exist: " + e.getMessage());
-        } else {
-            System.err.println("  Error executing statement: " + e.getMessage());
-        }
-    }
+    // Execute the statement
+    client.sql().execute(null, statement);
 }
 ```
 
@@ -270,59 +230,14 @@ After the schema is created, the bulk loader processes data insertion statements
 
 ```java
 // Then, process all DML statements
-System.out.println("\n=== Loading data (DML statements) ===");
-currentStatement = 0;
-
 for (String statement : statements) {
-    currentStatement++;
-    
     // Skip schema statements in second pass
     if (isSchemaStatement(statement)) {
         continue;
     }
     
-    try {
-        // Get statement type and target table
-        String statementType = getStatementType(statement);
-        String targetTable = getTargetTable(statement);
-        
-        // For INSERT statements, check if batch splitting is needed
-        if (statementType.equals("INSERT")) {
-            int approxRows = countInsertRows(statement);
-            System.out.println("[" + currentStatement + "/" + totalStatements + "] Found " + 
-                                statementType + " for table " + targetTable + 
-                                " with " + approxRows + " rows");
-            
-            if (approxRows > MAX_BATCH_SIZE) {
-                System.out.println("  Splitting large INSERT into smaller batches...");
-                List<String> batches = splitLargeInsert(statement, MAX_BATCH_SIZE);
-                System.out.println("  Created " + batches.size() + " batches");
-                
-                // Execute each batch
-                int batchNum = 1;
-                for (String batch : batches) {
-                    System.out.println("  Executing batch " + batchNum + "/" + batches.size());
-                    client.sql().execute(null, batch);
-                    batchNum++;
-                }
-                
-                successCount++;
-                System.out.println("  All batches executed successfully!");
-                continue;
-            }
-        }
-        
-        // For non-INSERT statements or small INSERTs, execute directly
-        System.out.println("[" + currentStatement + "/" + totalStatements + "] Executing " + 
-                            statementType + " for table " + targetTable);
-        
-        // Execute the statement
-        client.sql().execute(null, statement);
-        successCount++;
-        System.out.println("  Success!");
-    } catch (Exception e) {
-        System.err.println("  Error executing statement: " + e.getMessage());
-    }
+    // Execute the statement
+    client.sql().execute(null, statement);
 }
 ```
 
@@ -340,9 +255,6 @@ For very large INSERT statements, the `BulkLoadApp` splits them into smaller bat
 // For INSERT statements, check if batch splitting is needed
 if (statementType.equals("INSERT")) {
     int approxRows = countInsertRows(statement);
-    System.out.println("[" + currentStatement + "/" + totalStatements + "] Found " + 
-                        statementType + " for table " + targetTable + 
-                        " with " + approxRows + " rows");
     
     if (approxRows > MAX_BATCH_SIZE) {
         System.out.println("  Splitting large INSERT into smaller batches...");
@@ -640,8 +552,11 @@ The SQL statements in the bulk load file create tables with the same structure a
 POJO definition:
 ```java
 @Table(
-    zone = @Zone(value = "Chinook", storageProfiles = "default"),
-    colocateBy = @ColumnRef("ArtistId")
+        zone = @Zone(value = "Chinook", storageProfiles = "default"),
+        colocateBy = @ColumnRef("ArtistId"),
+        indexes = {
+            @Index(value = "IFK_AlbumArtistId", columns = { @ColumnRef("ArtistId") })
+        }
 )
 public class Album {
     @Id
@@ -715,51 +630,6 @@ You can create your own SQL files for bulk loading by following these steps:
 - Use the `IF NOT EXISTS` clause for idempotent operations
 - Consider splitting large insert statements into smaller chunks
 - Include comments to document your SQL file
-
-## Performance Considerations
-
-Bulk loading offers significant performance benefits:
-
-1. **Reduced Overhead**: Fewer network roundtrips between client and server
-2. **Batch Processing**: Multiple records are processed in a single operation
-3. **Streamlined Creation**: Schema and data creation happen in a coordinated manner
-
-However, for very large datasets, you may want to consider additional optimizations:
-
-- Increase batch sizes for insert operations (modify the `MAX_BATCH_SIZE` constant)
-- Use the automatic batch splitting feature for large inserts
-- Monitor cluster resources during loading to avoid overload
-
-## Comparison with POJO-based Loading
-
-| Feature | SQL-based Bulk Loading | POJO-based Loading |
-|---------|------------------------|---------------------|
-| Speed | Faster for large datasets | Better for incremental updates |
-| Implementation | SQL statements | Java code with annotations |
-| Flexibility | Good for initial setup | Better for dynamic operations |
-| Visibility | All statements in a single file | Distributed across Java classes |
-| Ease of editing | Edit SQL directly | Modify Java objects and rebuild |
-| Learning curve | Requires SQL knowledge | Requires Java knowledge |
-| Error handling | Statement-level | More granular |
-
-Both approaches have their strengths and can be used complementarily:
-
-- Use bulk loading for initial database setup or complete refreshes
-- Use POJO-based operations for ongoing updates and modifications
-
-## Extending the Bulk Loader
-
-The bulk loading framework can be extended to handle additional data sources:
-
-1. **Multiple SQL Files**: Load data from multiple SQL files for different parts of the schema
-2. **CSV Import**: Add support for importing from CSV files
-3. **Custom Data Generators**: Create synthetic data for testing or benchmarking
-
-To extend the loader, add new methods to `SqlImportUtils` or create specialized importers for different data formats.
-
-## Conclusion
-
-The bulk loading approach provides a fast and efficient way to populate the Chinook database in Apache Ignite 3. By combining SQL execution with proper error handling and verification, it ensures a reliable and consistent loading process that integrates well with the existing POJO-based model.
 
 ## Further Reading
 

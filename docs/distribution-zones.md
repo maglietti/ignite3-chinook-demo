@@ -282,13 +282,11 @@ SELECT * FROM system.zones;
 
 -- Count partitions per zone
 SELECT zone_name, COUNT(*) as partition_count 
-FROM system.partitions 
+FROM system.local_partition_states 
 GROUP BY zone_name;
 
 -- Check table assignments
-SELECT schema_name, table_name, zone_name 
-FROM system.tables 
-ORDER BY zone_name, table_name;
+select * from system.local_partition_states;
 ```
 
 This information can help you:
