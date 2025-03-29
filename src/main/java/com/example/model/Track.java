@@ -49,6 +49,9 @@ public class Track {
     @Column(value = "UnitPrice", nullable = false)
     private BigDecimal unitPrice;
 
+    @Column(value = "ReleaseYear", nullable = true)
+    private Integer releaseYear;
+
     /**
      * Default constructor required for serialization
      */
@@ -109,6 +112,9 @@ public class Track {
 
     public BigDecimal getUnitPrice() { return unitPrice; }
     public void setUnitPrice(BigDecimal unitPrice) { this.unitPrice = unitPrice; }
+    
+    public Integer getReleaseYear() { return releaseYear; }
+    public void setReleaseYear(Integer releaseYear) { this.releaseYear = releaseYear; }
 
     @Override
     public String toString() {
@@ -122,6 +128,7 @@ public class Track {
                 ", milliseconds=" + milliseconds +
                 ", bytes=" + bytes +
                 ", unitPrice=" + unitPrice +
+                ", releaseYear=" + releaseYear +
                 '}';
     }
 }
