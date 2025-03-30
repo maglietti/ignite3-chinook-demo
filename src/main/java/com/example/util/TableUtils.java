@@ -14,6 +14,35 @@ import java.util.Arrays;
 public class TableUtils {
 
     /**
+     * Display column names and a sample row from a table
+     *
+     * @param client The Ignite client
+     * @param tableName The name of the table to display columns for
+     */
+    public static void displayTableColumns(IgniteClient client, String tableName) {
+        try {
+            var dResult = client.sql().execute(null, "SELECT * FROM " + tableName + " LIMIT 1");
+
+            if (dResult.hasNext()) {
+                var row = dResult.next();
+
+                System.out.println("\nColumns in " + tableName + " table:");
+                for (int i = 0; i < row.columnCount(); i++) {
+                    String columnName = row.columnName(i);
+                    Object value = row.value(i);
+
+                    System.out.println("  - Column: " + columnName +
+                            ", Value: " + value);
+                }
+            } else {
+                System.out.println("No rows found in " + tableName + " table");
+            }
+        } catch (Exception e) {
+            System.err.println("Error querying " + tableName + " table: " + e.getMessage());
+        }
+    }
+
+    /**
      * Checks if a distribution zone exists in the database
      *
      * @param client The Ignite client
@@ -23,15 +52,15 @@ public class TableUtils {
     public static boolean zoneExists(IgniteClient client, String zoneName) {
         try {
             // Query system.zones to check if the zone exists
-            var result = client.sql().execute(null, 
-                "SELECT name FROM system.zones WHERE name = ?", zoneName.toUpperCase());
+            var result = client.sql().execute(null,
+                    "SELECT name FROM system.zones WHERE name = ?", zoneName.toUpperCase());
             return result.hasNext(); // If any rows are returned, the zone exists
         } catch (Exception e) {
             System.err.println("Error checking if zone exists: " + e.getMessage());
             return false;
         }
     }
-    
+
     /**
      * Checks if a table exists in the database
      *
@@ -58,9 +87,9 @@ public class TableUtils {
             System.out.println("\n=== Dropping Tables");
             // List of tables to drop in reverse order to avoid foreign key constraints
             List<String> tableNames = Arrays.asList(
-                "PlaylistTrack", "Playlist", "InvoiceLine", "Invoice", 
-                "Customer", "Employee", "Track", "Album", "Artist", 
-                "Genre", "MediaType"
+                    "PlaylistTrack", "Playlist", "InvoiceLine", "Invoice",
+                    "Customer", "Employee", "Track", "Album", "Artist",
+                    "Genre", "MediaType"
             );
 
             for (String tableName : tableNames) {
