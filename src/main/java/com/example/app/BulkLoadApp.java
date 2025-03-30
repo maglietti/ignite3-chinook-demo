@@ -41,25 +41,25 @@ public class BulkLoadApp {
             System.out.println(">>> Connected to the cluster: " + client.connections());
 
             // Check if tables already exist and ask to drop them
-            if (TableUtils.tableExists(client, "Artist") || 
-                TableUtils.tableExists(client, "Album") || 
+            if (TableUtils.tableExists(client, "Artist") ||
+                TableUtils.tableExists(client, "Album") ||
                 TableUtils.tableExists(client, "Track")) {
-                
-                System.out.println("Existing tables detected in the database.");
-                System.out.println("Do you want to drop existing tables before loading new data? (Y/N)");
+
+                System.out.println("--- Existing tables detected in the database.");
+                System.out.println("\nDo you want to drop existing tables before loading new data? (Y/N)");
                 String dropTablesInput = scanner.nextLine().trim().toUpperCase();
-                
+
                 if (dropTablesInput.equals("Y")) {
                     // Drop all existing tables
                     boolean tablesDropped = TableUtils.dropTables(client);
                     if (!tablesDropped) {
                         System.err.println("Failed to drop existing tables. Continuing anyway...");
                     }
-                    
+
                     // Ask if zones should be dropped too
-                    System.out.println("Do you also want to drop distribution zones? (Y/N)");
+                    System.out.println("\nDo you also want to drop distribution zones? (Y/N)");
                     String dropZonesInput = scanner.nextLine().trim().toUpperCase();
-                    
+
                     if (dropZonesInput.equals("Y")) {
                         boolean zonesDropped = TableUtils.dropDistributionZones(client);
                         if (!zonesDropped) {
@@ -81,32 +81,50 @@ public class BulkLoadApp {
 
             // Find SQL files in resources
             List<String> sqlFiles = findSqlFilesInResources();
-            
+
             if (sqlFiles.isEmpty()) {
                 System.err.println("No SQL files found in resources directory.");
                 return;
             }
-            
+
             // Display available SQL files
-            System.out.println("Available SQL files:");
+            System.out.println("\n=== Available SQL files:");
             for (int i = 0; i < sqlFiles.size(); i++) {
                 System.out.println((i + 1) + ". " + sqlFiles.get(i));
             }
-            
+
             // Ask user to select a file
-            System.out.print("Select a file to load (1-" + sqlFiles.size() + "): ");
-            int fileIndex = 0;
-            try {
-                fileIndex = Integer.parseInt(scanner.nextLine().trim()) - 1;
-                if (fileIndex < 0 || fileIndex >= sqlFiles.size()) {
-                    System.err.println("Invalid selection. Exiting.");
-                    return;
-                }
-            } catch (NumberFormatException e) {
-                System.err.println("Invalid input. Please enter a number. Exiting.");
-                return;
+            System.out.println("\n=== Available SQL files:");
+            for (int i = 0; i < sqlFiles.size(); i++) {
+                System.out.println((i + 1) + ". " + sqlFiles.get(i));
             }
-            
+            System.out.println("0. Exit application");
+
+            // Get valid selection from user
+            int fileIndex = -1;
+            boolean validSelection = false;
+
+            while (!validSelection) {
+                System.out.print("Select a file to load (0-" + sqlFiles.size() + "): ");
+
+                try {
+                    String input = scanner.nextLine().trim();
+                    int selection = Integer.parseInt(input);
+
+                    if (selection == 0) {
+                        System.out.println("<<< Exiting");
+                        return;
+                    } else if (selection > 0 && selection <= sqlFiles.size()) {
+                        fileIndex = selection - 1;
+                        validSelection = true;
+                    } else {
+                        System.out.println("Invalid selection. Please enter a number between 0 and " + sqlFiles.size() + ".");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid input. Please enter a number.");
+                }
+            }
+
             String selectedFile = sqlFiles.get(fileIndex);
             System.out.println("Selected file: " + selectedFile);
 
@@ -123,28 +141,16 @@ public class BulkLoadApp {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(sqlFileStream, StandardCharsets.UTF_8))) {
                 sqlStatements = SqlImportUtils.parseSqlStatementsFromReader(reader);
             }
-            
-            System.out.println("Parsed " + sqlStatements.size() + " SQL statements from file.");
 
-            // Prompt user to confirm load
-            System.out.println("This will create tables and load data from the SQL file.");
-            System.out.println("Do you want to proceed? (Y/N)");
-
-            // Get user confirmation
-            String input = scanner.nextLine().trim().toUpperCase();
-
-            if (!input.equals("Y")) {
-                System.out.println("Operation cancelled by user.");
-                return;
-            }
+            System.out.println("--- Parsed " + sqlStatements.size() + " SQL statements from file.");
 
             // Execute the SQL statements
             System.out.println("\n=== Starting bulk load from SQL file ===");
             int successCount = SqlImportUtils.executeSqlStatements(client, sqlStatements);
-            
+
             System.out.println("\n=== Bulk load completed ===");
             System.out.println("Successfully executed " + successCount + " out of " + sqlStatements.size() + " statements.");
-            
+
             // Verify the data was loaded by counting some records
             SqlImportUtils.verifyChinookData(client);
 

@@ -39,22 +39,22 @@ public class Main {
 
             System.out.println("\n===== CHINOOK MUSIC CATALOG ANALYTICS =====\n");
 
-            // 1. Find top genres by track count
+            // Find top genres by track count
             analyzeGenrePopularity(client);
 
-            // 2. Analyze track length distribution
+            // Analyze track length distribution
             analyzeTrackLengths(client);
 
-            // 3. Find artists with most albums
+            // Find artists with most albums
             findTopArtistsByAlbumCount(client);
 
-            // 4. Analyze composers and their contributions
+            // Analyze composers and their contributions
             analyzeComposers(client);
 
-            // 5. Generate playlist recommendations based on genre
+            // Generate playlist recommendations based on genre
             generatePlaylistRecommendations(client);
 
-            // 6. Perform sales analysis by artist/genre
+            // Perform sales analysis by artist/genre
             performSalesAnalysis(client);
 
             System.out.println("\n===== ANALYSIS COMPLETE =====");
