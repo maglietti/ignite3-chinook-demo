@@ -17,15 +17,15 @@ public class Album {
     // Primary key field
     @Id
     @Column(value = "AlbumId", nullable = false)
-    private Integer albumId;
+    private Integer AlbumId;
 
     @Column(value = "Title", nullable = false)
-    private String title;
+    private String Title;
 
     // Foreign key to Artist table
     @Id
     @Column(value = "ArtistId", nullable = false)
-    private Integer artistId;
+    private Integer ArtistId;
 
     /**
      * Default constructor required for serialization
@@ -40,9 +40,9 @@ public class Album {
      * @param artistId The ID of the artist who created the album
      */
     public Album(Integer albumId, String title, Integer artistId) {
-        this.albumId = albumId;
-        this.title = title;
-        this.artistId = artistId;
+        this.AlbumId = albumId;
+        this.Title = title;
+        this.ArtistId = artistId;
     }
 
     // Getters and setters
@@ -51,50 +51,50 @@ public class Album {
      * @return The album's unique identifier
      */
     public Integer getAlbumId() {
-        return albumId;
+        return AlbumId;
     }
 
     /**
      * @param albumId The album's unique identifier to set
      */
     public void setAlbumId(Integer albumId) {
-        this.albumId = albumId;
+        this.AlbumId = albumId;
     }
 
     /**
      * @return The album's title
      */
     public String getTitle() {
-        return title;
+        return Title;
     }
 
     /**
      * @param title The album's title to set
      */
     public void setTitle(String title) {
-        this.title = title;
+        this.Title = title;
     }
 
     /**
      * @return The ID of the artist who created this album
      */
     public Integer getArtistId() {
-        return artistId;
+        return ArtistId;
     }
 
     /**
      * @param artistId The ID of the artist to set
      */
     public void setArtistId(Integer artistId) {
-        this.artistId = artistId;
+        this.ArtistId = artistId;
     }
 
     @Override
     public String toString() {
         return "Album{" +
-                "albumId=" + albumId +
-                ", title='" + title + '\'' +
-                ", artistId=" + artistId +
+                "AlbumId=" + AlbumId +
+                ", Title='" + Title + '\'' +
+                ", ArtistId=" + ArtistId +
                 '}';
     }
 }

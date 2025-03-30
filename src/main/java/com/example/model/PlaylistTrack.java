@@ -19,11 +19,11 @@ public class PlaylistTrack {
     // Composite primary key fields
     @Id
     @Column(value = "PlaylistId", nullable = false)
-    private Integer playlistId;
+    private Integer PlaylistId;
 
     @Id
     @Column(value = "TrackId", nullable = false)
-    private Integer trackId;
+    private Integer TrackId;
 
     /**
      * Default constructor required for serialization
@@ -37,33 +37,33 @@ public class PlaylistTrack {
      * @param trackId The ID of the track
      */
     public PlaylistTrack(Integer playlistId, Integer trackId) {
-        this.playlistId = playlistId;
-        this.trackId = trackId;
+        this.PlaylistId = playlistId;
+        this.TrackId = trackId;
     }
 
     // Getters and setters
 
     public Integer getPlaylistId() {
-        return playlistId;
+        return PlaylistId;
     }
 
     public void setPlaylistId(Integer playlistId) {
-        this.playlistId = playlistId;
+        this.PlaylistId = playlistId;
     }
 
     public Integer getTrackId() {
-        return trackId;
+        return TrackId;
     }
 
     public void setTrackId(Integer trackId) {
-        this.trackId = trackId;
+        this.TrackId = trackId;
     }
 
     @Override
     public String toString() {
         return "PlaylistTrack{" +
-                "playlistId=" + playlistId +
-                ", trackId=" + trackId +
+                "PlaylistId=" + PlaylistId +
+                ", TrackId=" + TrackId +
                 '}';
     }
 }

@@ -16,10 +16,10 @@ public class Playlist {
     // Primary key field
     @Id
     @Column(value = "PlaylistId", nullable = false)
-    private Integer playlistId;
+    private Integer PlaylistId;
 
     @Column(value = "Name", nullable = true)
-    private String name;
+    private String Name;
 
     /**
      * Default constructor required for serialization
@@ -33,33 +33,33 @@ public class Playlist {
      * @param name The name of the playlist
      */
     public Playlist(Integer playlistId, String name) {
-        this.playlistId = playlistId;
-        this.name = name;
+        this.PlaylistId = playlistId;
+        this.Name = name;
     }
 
     // Getters and setters
 
     public Integer getPlaylistId() {
-        return playlistId;
+        return PlaylistId;
     }
 
     public void setPlaylistId(Integer playlistId) {
-        this.playlistId = playlistId;
+        this.PlaylistId = playlistId;
     }
 
     public String getName() {
-        return name;
+        return Name;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.Name = name;
     }
 
     @Override
     public String toString() {
         return "Playlist{" +
-                "playlistId=" + playlistId +
-                ", name='" + name + '\'' +
+                "PlaylistId=" + PlaylistId +
+                ", Name='" + Name + '\'' +
                 '}';
     }
 }

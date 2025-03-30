@@ -21,43 +21,43 @@ public class Customer {
     // Primary key field
     @Id
     @Column(value = "CustomerId", nullable = false)
-    private Integer customerId;
+    private Integer CustomerId;
 
     @Column(value = "FirstName", nullable = false)
-    private String firstName;
+    private String FirstName;
 
     @Column(value = "LastName", nullable = false)
-    private String lastName;
+    private String LastName;
 
     @Column(value = "Company", nullable = true)
-    private String company;
+    private String Company;
 
     @Column(value = "Address", nullable = true)
-    private String address;
+    private String Address;
 
     @Column(value = "City", nullable = true)
-    private String city;
+    private String City;
 
     @Column(value = "State", nullable = true)
-    private String state;
+    private String State;
 
     @Column(value = "Country", nullable = true)
-    private String country;
+    private String Country;
 
     @Column(value = "PostalCode", nullable = true)
-    private String postalCode;
+    private String PostalCode;
 
     @Column(value = "Phone", nullable = true)
-    private String phone;
+    private String Phone;
 
     @Column(value = "Fax", nullable = true)
-    private String fax;
+    private String Fax;
 
     @Column(value = "Email", nullable = false)
-    private String email;
+    private String Email;
 
     @Column(value = "SupportRepId", nullable = true)
-    private Integer supportRepId;
+    private Integer SupportRepId;
 
     /**
      * Default constructor required for serialization
@@ -73,10 +73,10 @@ public class Customer {
      * @param email The email of the customer
      */
     public Customer(Integer customerId, String firstName, String lastName, String email) {
-        this.customerId = customerId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
+        this.CustomerId = customerId;
+        this.FirstName = firstName;
+        this.LastName = lastName;
+        this.Email = email;
     }
 
     /**
@@ -99,134 +99,134 @@ public class Customer {
     public Customer(Integer customerId, String firstName, String lastName, String company,
                     String address, String city, String state, String country, String postalCode,
                     String phone, String fax, String email, Integer supportRepId) {
-        this.customerId = customerId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.company = company;
-        this.address = address;
-        this.city = city;
-        this.state = state;
-        this.country = country;
-        this.postalCode = postalCode;
-        this.phone = phone;
-        this.fax = fax;
-        this.email = email;
-        this.supportRepId = supportRepId;
+        this.CustomerId = customerId;
+        this.FirstName = firstName;
+        this.LastName = lastName;
+        this.Company = company;
+        this.Address = address;
+        this.City = city;
+        this.State = state;
+        this.Country = country;
+        this.PostalCode = postalCode;
+        this.Phone = phone;
+        this.Fax = fax;
+        this.Email = email;
+        this.SupportRepId = supportRepId;
     }
 
     // Getters and setters
 
     public Integer getCustomerId() {
-        return customerId;
+        return CustomerId;
     }
 
     public void setCustomerId(Integer customerId) {
-        this.customerId = customerId;
+        this.CustomerId = customerId;
     }
 
     public String getFirstName() {
-        return firstName;
+        return FirstName;
     }
 
     public void setFirstName(String firstName) {
-        this.firstName = firstName;
+        this.FirstName = firstName;
     }
 
     public String getLastName() {
-        return lastName;
+        return LastName;
     }
 
     public void setLastName(String lastName) {
-        this.lastName = lastName;
+        this.LastName = lastName;
     }
 
     public String getCompany() {
-        return company;
+        return Company;
     }
 
     public void setCompany(String company) {
-        this.company = company;
+        this.Company = company;
     }
 
     public String getAddress() {
-        return address;
+        return Address;
     }
 
     public void setAddress(String address) {
-        this.address = address;
+        this.Address = address;
     }
 
     public String getCity() {
-        return city;
+        return City;
     }
 
     public void setCity(String city) {
-        this.city = city;
+        this.City = city;
     }
 
     public String getState() {
-        return state;
+        return State;
     }
 
     public void setState(String state) {
-        this.state = state;
+        this.State = state;
     }
 
     public String getCountry() {
-        return country;
+        return Country;
     }
 
     public void setCountry(String country) {
-        this.country = country;
+        this.Country = country;
     }
 
     public String getPostalCode() {
-        return postalCode;
+        return PostalCode;
     }
 
     public void setPostalCode(String postalCode) {
-        this.postalCode = postalCode;
+        this.PostalCode = postalCode;
     }
 
     public String getPhone() {
-        return phone;
+        return Phone;
     }
 
     public void setPhone(String phone) {
-        this.phone = phone;
+        this.Phone = phone;
     }
 
     public String getFax() {
-        return fax;
+        return Fax;
     }
 
     public void setFax(String fax) {
-        this.fax = fax;
+        this.Fax = fax;
     }
 
     public String getEmail() {
-        return email;
+        return Email;
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        this.Email = email;
     }
 
     public Integer getSupportRepId() {
-        return supportRepId;
+        return SupportRepId;
     }
 
     public void setSupportRepId(Integer supportRepId) {
-        this.supportRepId = supportRepId;
+        this.SupportRepId = supportRepId;
     }
 
     @Override
     public String toString() {
         return "Customer{" +
-                "customerId=" + customerId +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
+                "CustomerId=" + CustomerId +
+                ", FirstName='" + FirstName + '\'' +
+                ", LastName='" + LastName + '\'' +
+                ", Email='" + Email + '\'' +
                 '}';
     }
 }

@@ -23,49 +23,49 @@ public class Employee {
     // Primary key field
     @Id
     @Column(value = "EmployeeId", nullable = false)
-    private Integer employeeId;
+    private Integer EmployeeId;
 
     @Column(value = "LastName", nullable = false)
-    private String lastName;
+    private String LastName;
 
     @Column(value = "FirstName", nullable = false)
-    private String firstName;
+    private String FirstName;
 
     @Column(value = "Title", nullable = true)
-    private String title;
+    private String Title;
 
     @Column(value = "ReportsTo", nullable = true)
-    private Integer reportsTo;
+    private Integer ReportsTo;
 
     @Column(value = "BirthDate", nullable = true)
-    private LocalDate birthDate;
+    private LocalDate BirthDate;
 
     @Column(value = "HireDate", nullable = true)
-    private LocalDate hireDate;
+    private LocalDate HireDate;
 
     @Column(value = "Address", nullable = true)
-    private String address;
+    private String Address;
 
     @Column(value = "City", nullable = true)
-    private String city;
+    private String City;
 
     @Column(value = "State", nullable = true)
-    private String state;
+    private String State;
 
     @Column(value = "Country", nullable = true)
-    private String country;
+    private String Country;
 
     @Column(value = "PostalCode", nullable = true)
-    private String postalCode;
+    private String PostalCode;
 
     @Column(value = "Phone", nullable = true)
-    private String phone;
+    private String Phone;
 
     @Column(value = "Fax", nullable = true)
-    private String fax;
+    private String Fax;
 
     @Column(value = "Email", nullable = true)
-    private String email;
+    private String Email;
 
     /**
      * Default constructor required for serialization
@@ -80,9 +80,9 @@ public class Employee {
      * @param firstName The first name of the employee
      */
     public Employee(Integer employeeId, String lastName, String firstName) {
-        this.employeeId = employeeId;
-        this.lastName = lastName;
-        this.firstName = firstName;
+        this.EmployeeId = employeeId;
+        this.LastName = lastName;
+        this.FirstName = firstName;
     }
 
     /**
@@ -108,152 +108,152 @@ public class Employee {
                     Integer reportsTo, LocalDate birthDate, LocalDate hireDate, String address,
                     String city, String state, String country, String postalCode, String phone,
                     String fax, String email) {
-        this.employeeId = employeeId;
-        this.lastName = lastName;
-        this.firstName = firstName;
-        this.title = title;
-        this.reportsTo = reportsTo;
-        this.birthDate = birthDate;
-        this.hireDate = hireDate;
-        this.address = address;
-        this.city = city;
-        this.state = state;
-        this.country = country;
-        this.postalCode = postalCode;
-        this.phone = phone;
-        this.fax = fax;
-        this.email = email;
+        this.EmployeeId = employeeId;
+        this.LastName = lastName;
+        this.FirstName = firstName;
+        this.Title = title;
+        this.ReportsTo = reportsTo;
+        this.BirthDate = birthDate;
+        this.HireDate = hireDate;
+        this.Address = address;
+        this.City = city;
+        this.State = state;
+        this.Country = country;
+        this.PostalCode = postalCode;
+        this.Phone = phone;
+        this.Fax = fax;
+        this.Email = email;
     }
 
     // Getters and setters
 
     public Integer getEmployeeId() {
-        return employeeId;
+        return EmployeeId;
     }
 
     public void setEmployeeId(Integer employeeId) {
-        this.employeeId = employeeId;
+        this.EmployeeId = employeeId;
     }
 
     public String getLastName() {
-        return lastName;
+        return LastName;
     }
 
     public void setLastName(String lastName) {
-        this.lastName = lastName;
+        this.LastName = lastName;
     }
 
     public String getFirstName() {
-        return firstName;
+        return FirstName;
     }
 
     public void setFirstName(String firstName) {
-        this.firstName = firstName;
+        this.FirstName = firstName;
     }
 
     public String getTitle() {
-        return title;
+        return Title;
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        this.Title = title;
     }
 
     public Integer getReportsTo() {
-        return reportsTo;
+        return ReportsTo;
     }
 
     public void setReportsTo(Integer reportsTo) {
-        this.reportsTo = reportsTo;
+        this.ReportsTo = reportsTo;
     }
 
     public LocalDate getBirthDate() {
-        return birthDate;
+        return BirthDate;
     }
 
     public void setBirthDate(LocalDate birthDate) {
-        this.birthDate = birthDate;
+        this.BirthDate = birthDate;
     }
 
     public LocalDate getHireDate() {
-        return hireDate;
+        return HireDate;
     }
 
     public void setHireDate(LocalDate hireDate) {
-        this.hireDate = hireDate;
+        this.HireDate = hireDate;
     }
 
     public String getAddress() {
-        return address;
+        return Address;
     }
 
     public void setAddress(String address) {
-        this.address = address;
+        this.Address = address;
     }
 
     public String getCity() {
-        return city;
+        return City;
     }
 
     public void setCity(String city) {
-        this.city = city;
+        this.City = city;
     }
 
     public String getState() {
-        return state;
+        return State;
     }
 
     public void setState(String state) {
-        this.state = state;
+        this.State = state;
     }
 
     public String getCountry() {
-        return country;
+        return Country;
     }
 
     public void setCountry(String country) {
-        this.country = country;
+        this.Country = country;
     }
 
     public String getPostalCode() {
-        return postalCode;
+        return PostalCode;
     }
 
     public void setPostalCode(String postalCode) {
-        this.postalCode = postalCode;
+        this.PostalCode = postalCode;
     }
 
     public String getPhone() {
-        return phone;
+        return Phone;
     }
 
     public void setPhone(String phone) {
-        this.phone = phone;
+        this.Phone = phone;
     }
 
     public String getFax() {
-        return fax;
+        return Fax;
     }
 
     public void setFax(String fax) {
-        this.fax = fax;
+        this.Fax = fax;
     }
 
     public String getEmail() {
-        return email;
+        return Email;
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        this.Email = email;
     }
 
     @Override
     public String toString() {
         return "Employee{" +
-                "employeeId=" + employeeId +
-                ", lastName='" + lastName + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", title='" + title + '\'' +
+                "EmployeeId=" + EmployeeId +
+                ", LastName='" + LastName + '\'' +
+                ", FirstName='" + FirstName + '\'' +
+                ", Title='" + Title + '\'' +
                 '}';
     }
 }

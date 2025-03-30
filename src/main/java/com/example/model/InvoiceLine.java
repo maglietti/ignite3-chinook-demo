@@ -19,22 +19,22 @@ public class InvoiceLine {
     // Primary key field
     @Id
     @Column(value = "InvoiceLineId", nullable = false)
-    private Integer invoiceLineId;
+    private Integer InvoiceLineId;
 
     // Foreign key to Invoice
     @Id
     @Column(value = "InvoiceId", nullable = false)
-    private Integer invoiceId;
+    private Integer InvoiceId;
 
     // Foreign key to Track
     @Column(value = "TrackId", nullable = false)
-    private Integer trackId;
+    private Integer TrackId;
 
     @Column(value = "UnitPrice", nullable = false)
-    private BigDecimal unitPrice;
+    private BigDecimal UnitPrice;
 
     @Column(value = "Quantity", nullable = false)
-    private Integer quantity;
+    private Integer Quantity;
 
     /**
      * Default constructor required for serialization
@@ -52,63 +52,63 @@ public class InvoiceLine {
      */
     public InvoiceLine(Integer invoiceLineId, Integer invoiceId, Integer trackId, 
                        BigDecimal unitPrice, Integer quantity) {
-        this.invoiceLineId = invoiceLineId;
-        this.invoiceId = invoiceId;
-        this.trackId = trackId;
-        this.unitPrice = unitPrice;
-        this.quantity = quantity;
+        this.InvoiceLineId = invoiceLineId;
+        this.InvoiceId = invoiceId;
+        this.TrackId = trackId;
+        this.UnitPrice = unitPrice;
+        this.Quantity = quantity;
     }
 
     // Getters and setters
 
     public Integer getInvoiceLineId() {
-        return invoiceLineId;
+        return InvoiceLineId;
     }
 
     public void setInvoiceLineId(Integer invoiceLineId) {
-        this.invoiceLineId = invoiceLineId;
+        this.InvoiceLineId = invoiceLineId;
     }
 
     public Integer getInvoiceId() {
-        return invoiceId;
+        return InvoiceId;
     }
 
     public void setInvoiceId(Integer invoiceId) {
-        this.invoiceId = invoiceId;
+        this.InvoiceId = invoiceId;
     }
 
     public Integer getTrackId() {
-        return trackId;
+        return TrackId;
     }
 
     public void setTrackId(Integer trackId) {
-        this.trackId = trackId;
+        this.TrackId = trackId;
     }
 
     public BigDecimal getUnitPrice() {
-        return unitPrice;
+        return UnitPrice;
     }
 
     public void setUnitPrice(BigDecimal unitPrice) {
-        this.unitPrice = unitPrice;
+        this.UnitPrice = unitPrice;
     }
 
     public Integer getQuantity() {
-        return quantity;
+        return Quantity;
     }
 
     public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
+        this.Quantity = quantity;
     }
 
     @Override
     public String toString() {
         return "InvoiceLine{" +
-                "invoiceLineId=" + invoiceLineId +
-                ", invoiceId=" + invoiceId +
-                ", trackId=" + trackId +
-                ", unitPrice=" + unitPrice +
-                ", quantity=" + quantity +
+                "InvoiceLineId=" + InvoiceLineId +
+                ", InvoiceId=" + InvoiceId +
+                ", TrackId=" + TrackId +
+                ", UnitPrice=" + UnitPrice +
+                ", Quantity=" + Quantity +
                 '}';
     }
 }

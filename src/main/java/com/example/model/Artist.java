@@ -16,10 +16,10 @@ public class Artist {
     // Primary key field
     @Id
     @Column(value = "ArtistId", nullable = false)
-    private Integer artistId;
+    private Integer ArtistId;
 
     @Column(value = "Name", nullable = true)
-    private String name;
+    private String Name;
 
     /**
      * Default constructor required for serialization
@@ -33,8 +33,8 @@ public class Artist {
      * @param name The name of the artist
      */
     public Artist(Integer artistId, String name) {
-        this.artistId = artistId;
-        this.name = name;
+        this.ArtistId = artistId;
+        this.Name = name;
     }
 
     // Getters and setters
@@ -43,35 +43,35 @@ public class Artist {
      * @return The artist's unique identifier
      */
     public Integer getArtistId() {
-        return artistId;
+        return ArtistId;
     }
 
     /**
      * @param artistId The artist's unique identifier to set
      */
     public void setArtistId(Integer artistId) {
-        this.artistId = artistId;
+        this.ArtistId = artistId;
     }
 
     /**
      * @return The artist's name
      */
     public String getName() {
-        return name;
+        return Name;
     }
 
     /**
      * @param name The artist's name to set
      */
     public void setName(String name) {
-        this.name = name;
+        this.Name = name;
     }
 
     @Override
     public String toString() {
         return "Artist{" +
-                "artistId=" + artistId +
-                ", name='" + name + '\'' +
+                "ArtistId=" + ArtistId +
+                ", Name='" + Name + '\'' +
                 '}';
     }
 }

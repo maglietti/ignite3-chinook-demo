@@ -149,6 +149,12 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>run-main-sql</id>
+                        <configuration>
+                            <mainClass>com.example.app.MainSQL</mainClass>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>run-main</id>
                         <configuration>
                             <mainClass>com.example.app.Main</mainClass>

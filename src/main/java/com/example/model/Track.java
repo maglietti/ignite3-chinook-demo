@@ -21,36 +21,33 @@ public class Track {
     // Primary key field
     @Id
     @Column(value = "TrackId", nullable = false)
-    private Integer trackId;
+    private Integer TrackId;
 
     @Column(value = "Name", nullable = false)
-    private String name;
+    private String Name;
 
     // Foreign keys
     @Id
     @Column(value = "AlbumId", nullable = true)
-    private Integer albumId;
+    private Integer AlbumId;
 
     @Column(value = "MediaTypeId", nullable = false)
-    private Integer mediaTypeId;
+    private Integer MediaTypeId;
 
     @Column(value = "GenreId", nullable = true)
-    private Integer genreId;
+    private Integer GenreId;
 
     @Column(value = "Composer", nullable = true)
-    private String composer;
+    private String Composer;
 
     @Column(value = "Milliseconds", nullable = false)
-    private Integer milliseconds;
+    private Integer Milliseconds;
 
     @Column(value = "Bytes", nullable = true)
-    private Integer bytes;
+    private Integer Bytes;
 
     @Column(value = "UnitPrice", nullable = false)
-    private BigDecimal unitPrice;
-
-    @Column(value = "ReleaseYear", nullable = true)
-    private Integer releaseYear;
+    private BigDecimal UnitPrice;
 
     /**
      * Default constructor required for serialization
@@ -73,62 +70,58 @@ public class Track {
     public Track(Integer trackId, String name, Integer albumId, Integer mediaTypeId,
                  Integer genreId, String composer, Integer milliseconds,
                  Integer bytes, BigDecimal unitPrice) {
-        this.trackId = trackId;
-        this.name = name;
-        this.albumId = albumId;
-        this.mediaTypeId = mediaTypeId;
-        this.genreId = genreId;
-        this.composer = composer;
-        this.milliseconds = milliseconds;
-        this.bytes = bytes;
-        this.unitPrice = unitPrice;
+        this.TrackId = trackId;
+        this.Name = name;
+        this.AlbumId = albumId;
+        this.MediaTypeId = mediaTypeId;
+        this.GenreId = genreId;
+        this.Composer = composer;
+        this.Milliseconds = milliseconds;
+        this.Bytes = bytes;
+        this.UnitPrice = unitPrice;
     }
 
     // Getters and setters
 
-    public Integer getTrackId() { return trackId; }
-    public void setTrackId(Integer trackId) { this.trackId = trackId; }
+    public Integer getTrackId() { return TrackId; }
+    public void setTrackId(Integer trackId) { this.TrackId = trackId; }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public String getName() { return Name; }
+    public void setName(String name) { this.Name = name; }
 
-    public Integer getAlbumId() { return albumId; }
-    public void setAlbumId(Integer albumId) { this.albumId = albumId; }
+    public Integer getAlbumId() { return AlbumId; }
+    public void setAlbumId(Integer albumId) { this.AlbumId = albumId; }
 
-    public Integer getMediaTypeId() { return mediaTypeId; }
-    public void setMediaTypeId(Integer mediaTypeId) { this.mediaTypeId = mediaTypeId; }
+    public Integer getMediaTypeId() { return MediaTypeId; }
+    public void setMediaTypeId(Integer mediaTypeId) { this.MediaTypeId = mediaTypeId; }
 
-    public Integer getGenreId() { return genreId; }
-    public void setGenreId(Integer genreId) { this.genreId = genreId; }
+    public Integer getGenreId() { return GenreId; }
+    public void setGenreId(Integer genreId) { this.GenreId = genreId; }
 
-    public String getComposer() { return composer; }
-    public void setComposer(String composer) { this.composer = composer; }
+    public String getComposer() { return Composer; }
+    public void setComposer(String composer) { this.Composer = composer; }
 
-    public Integer getMilliseconds() { return milliseconds; }
-    public void setMilliseconds(Integer milliseconds) { this.milliseconds = milliseconds; }
+    public Integer getMilliseconds() { return Milliseconds; }
+    public void setMilliseconds(Integer milliseconds) { this.Milliseconds = milliseconds; }
 
-    public Integer getBytes() { return bytes; }
-    public void setBytes(Integer bytes) { this.bytes = bytes; }
+    public Integer getBytes() { return Bytes; }
+    public void setBytes(Integer bytes) { this.Bytes = bytes; }
 
-    public BigDecimal getUnitPrice() { return unitPrice; }
-    public void setUnitPrice(BigDecimal unitPrice) { this.unitPrice = unitPrice; }
-    
-    public Integer getReleaseYear() { return releaseYear; }
-    public void setReleaseYear(Integer releaseYear) { this.releaseYear = releaseYear; }
+    public BigDecimal getUnitPrice() { return UnitPrice; }
+    public void setUnitPrice(BigDecimal unitPrice) { this.UnitPrice = unitPrice; }
 
     @Override
     public String toString() {
         return "Track{" +
-                "trackId=" + trackId +
-                ", name='" + name + '\'' +
-                ", albumId=" + albumId +
-                ", mediaTypeId=" + mediaTypeId +
-                ", genreId=" + genreId +
-                ", composer='" + composer + '\'' +
-                ", milliseconds=" + milliseconds +
-                ", bytes=" + bytes +
-                ", unitPrice=" + unitPrice +
-                ", releaseYear=" + releaseYear +
+                "TrackId=" + TrackId +
+                ", Name='" + Name + '\'' +
+                ", AlbumId=" + AlbumId +
+                ", MediaTypeId=" + MediaTypeId +
+                ", GenreId=" + GenreId +
+                ", Composer='" + Composer + '\'' +
+                ", Milliseconds=" + Milliseconds +
+                ", Bytes=" + Bytes +
+                ", UnitPrice=" + UnitPrice +
                 '}';
     }
 }

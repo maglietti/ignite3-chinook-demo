@@ -19,33 +19,33 @@ public class Invoice {
     // Primary key field
     @Id
     @Column(value = "InvoiceId", nullable = false)
-    private Integer invoiceId;
+    private Integer InvoiceId;
 
     // Foreign key to Customer
     @Id
     @Column(value = "CustomerId", nullable = false)
-    private Integer customerId;
+    private Integer CustomerId;
 
     @Column(value = "InvoiceDate", nullable = false)
-    private LocalDate invoiceDate;
+    private LocalDate InvoiceDate;
 
     @Column(value = "BillingAddress", nullable = true)
-    private String billingAddress;
+    private String BillingAddress;
 
     @Column(value = "BillingCity", nullable = true)
-    private String billingCity;
+    private String BillingCity;
 
     @Column(value = "BillingState", nullable = true)
-    private String billingState;
+    private String BillingState;
 
     @Column(value = "BillingCountry", nullable = true)
-    private String billingCountry;
+    private String BillingCountry;
 
     @Column(value = "BillingPostalCode", nullable = true)
-    private String billingPostalCode;
+    private String BillingPostalCode;
 
     @Column(value = "Total", nullable = false)
-    private BigDecimal total;
+    private BigDecimal Total;
 
     /**
      * Default constructor required for serialization
@@ -61,10 +61,10 @@ public class Invoice {
      * @param total The total amount of the invoice
      */
     public Invoice(Integer invoiceId, Integer customerId, LocalDate invoiceDate, BigDecimal total) {
-        this.invoiceId = invoiceId;
-        this.customerId = customerId;
-        this.invoiceDate = invoiceDate;
-        this.total = total;
+        this.InvoiceId = invoiceId;
+        this.CustomerId = customerId;
+        this.InvoiceDate = invoiceDate;
+        this.Total = total;
     }
 
     /**
@@ -83,98 +83,98 @@ public class Invoice {
     public Invoice(Integer invoiceId, Integer customerId, LocalDate invoiceDate, 
                    String billingAddress, String billingCity, String billingState, 
                    String billingCountry, String billingPostalCode, BigDecimal total) {
-        this.invoiceId = invoiceId;
-        this.customerId = customerId;
-        this.invoiceDate = invoiceDate;
-        this.billingAddress = billingAddress;
-        this.billingCity = billingCity;
-        this.billingState = billingState;
-        this.billingCountry = billingCountry;
-        this.billingPostalCode = billingPostalCode;
-        this.total = total;
+        this.InvoiceId = invoiceId;
+        this.CustomerId = customerId;
+        this.InvoiceDate = invoiceDate;
+        this.BillingAddress = billingAddress;
+        this.BillingCity = billingCity;
+        this.BillingState = billingState;
+        this.BillingCountry = billingCountry;
+        this.BillingPostalCode = billingPostalCode;
+        this.Total = total;
     }
 
     // Getters and setters
 
     public Integer getInvoiceId() {
-        return invoiceId;
+        return InvoiceId;
     }
 
     public void setInvoiceId(Integer invoiceId) {
-        this.invoiceId = invoiceId;
+        this.InvoiceId = invoiceId;
     }
 
     public Integer getCustomerId() {
-        return customerId;
+        return CustomerId;
     }
 
     public void setCustomerId(Integer customerId) {
-        this.customerId = customerId;
+        this.CustomerId = customerId;
     }
 
     public LocalDate getInvoiceDate() {
-        return invoiceDate;
+        return InvoiceDate;
     }
 
     public void setInvoiceDate(LocalDate invoiceDate) {
-        this.invoiceDate = invoiceDate;
+        this.InvoiceDate = invoiceDate;
     }
 
     public String getBillingAddress() {
-        return billingAddress;
+        return BillingAddress;
     }
 
     public void setBillingAddress(String billingAddress) {
-        this.billingAddress = billingAddress;
+        this.BillingAddress = billingAddress;
     }
 
     public String getBillingCity() {
-        return billingCity;
+        return BillingCity;
     }
 
     public void setBillingCity(String billingCity) {
-        this.billingCity = billingCity;
+        this.BillingCity = billingCity;
     }
 
     public String getBillingState() {
-        return billingState;
+        return BillingState;
     }
 
     public void setBillingState(String billingState) {
-        this.billingState = billingState;
+        this.BillingState = billingState;
     }
 
     public String getBillingCountry() {
-        return billingCountry;
+        return BillingCountry;
     }
 
     public void setBillingCountry(String billingCountry) {
-        this.billingCountry = billingCountry;
+        this.BillingCountry = billingCountry;
     }
 
     public String getBillingPostalCode() {
-        return billingPostalCode;
+        return BillingPostalCode;
     }
 
     public void setBillingPostalCode(String billingPostalCode) {
-        this.billingPostalCode = billingPostalCode;
+        this.BillingPostalCode = billingPostalCode;
     }
 
     public BigDecimal getTotal() {
-        return total;
+        return Total;
     }
 
     public void setTotal(BigDecimal total) {
-        this.total = total;
+        this.Total = total;
     }
 
     @Override
     public String toString() {
         return "Invoice{" +
-                "invoiceId=" + invoiceId +
-                ", customerId=" + customerId +
-                ", invoiceDate=" + invoiceDate +
-                ", total=" + total +
+                "InvoiceId=" + InvoiceId +
+                ", CustomerId=" + CustomerId +
+                ", InvoiceDate=" + InvoiceDate +
+                ", Total=" + Total +
                 '}';
     }
 }

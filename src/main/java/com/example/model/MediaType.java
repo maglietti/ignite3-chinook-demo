@@ -16,10 +16,10 @@ public class MediaType {
     // Primary key field
     @Id
     @Column(value = "MediaTypeId", nullable = false)
-    private Integer mediaTypeId;
+    private Integer MediaTypeId;
 
     @Column(value = "Name", nullable = true)
-    private String name;
+    private String Name;
 
     /**
      * Default constructor required for serialization
@@ -33,8 +33,8 @@ public class MediaType {
      * @param name The name of the media type
      */
     public MediaType(Integer mediaTypeId, String name) {
-        this.mediaTypeId = mediaTypeId;
-        this.name = name;
+        this.MediaTypeId = mediaTypeId;
+        this.Name = name;
     }
 
     // Getters and setters
@@ -43,35 +43,35 @@ public class MediaType {
      * @return The media type's unique identifier
      */
     public Integer getMediaTypeId() {
-        return mediaTypeId;
+        return MediaTypeId;
     }
 
     /**
      * @param mediaTypeId The media type's unique identifier to set
      */
     public void setMediaTypeId(Integer mediaTypeId) {
-        this.mediaTypeId = mediaTypeId;
+        this.MediaTypeId = mediaTypeId;
     }
 
     /**
      * @return The media type's name
      */
     public String getName() {
-        return name;
+        return Name;
     }
 
     /**
      * @param name The media type's name to set
      */
     public void setName(String name) {
-        this.name = name;
+        this.Name = name;
     }
 
     @Override
     public String toString() {
         return "MediaType{" +
-                "mediaTypeId=" + mediaTypeId +
-                ", name='" + name + '\'' +
+                "MediaTypeId=" + MediaTypeId +
+                ", Name='" + Name + '\'' +
                 '}';
     }
 }

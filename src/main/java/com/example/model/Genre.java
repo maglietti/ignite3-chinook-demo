@@ -16,10 +16,10 @@ public class Genre {
     // Primary key field
     @Id
     @Column(value = "GenreId", nullable = false)
-    private Integer genreId;
+    private Integer GenreId;
 
     @Column(value = "Name", nullable = true)
-    private String name;
+    private String Name;
 
     /**
      * Default constructor required for serialization
@@ -33,8 +33,8 @@ public class Genre {
      * @param name The name of the genre
      */
     public Genre(Integer genreId, String name) {
-        this.genreId = genreId;
-        this.name = name;
+        this.GenreId = genreId;
+        this.Name = name;
     }
 
     // Getters and setters
@@ -43,35 +43,35 @@ public class Genre {
      * @return The genre's unique identifier
      */
     public Integer getGenreId() {
-        return genreId;
+        return GenreId;
     }
 
     /**
      * @param genreId The genre's unique identifier to set
      */
     public void setGenreId(Integer genreId) {
-        this.genreId = genreId;
+        this.GenreId = genreId;
     }
 
     /**
      * @return The genre's name
      */
     public String getName() {
-        return name;
+        return Name;
     }
 
     /**
      * @param name The genre's name to set
      */
     public void setName(String name) {
-        this.name = name;
+        this.Name = name;
     }
 
     @Override
     public String toString() {
         return "Genre{" +
-                "genreId=" + genreId +
-                ", name='" + name + '\'' +
+                "GenreId=" + GenreId +
+                ", Name='" + Name + '\'' +
                 '}';
     }
 }
