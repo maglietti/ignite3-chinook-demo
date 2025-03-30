@@ -63,16 +63,16 @@ public class testPojo {
             // Create a list of 10 people
             List<personPojo> people = new ArrayList<>();
 
-            people.add(createPerson(1, "P001", "John", "Doe", "Software Engineer"));
-            people.add(createPerson(2, "P002", "Jane", "Smith", "Data Scientist"));
-            people.add(createPerson(3, "P003", "Michael", "Johnson", "Product Manager"));
-            people.add(createPerson(4, "P004", "Emily", "Williams", "UX Designer"));
-            people.add(createPerson(5, "P005", "David", "Brown", "System Administrator"));
-            people.add(createPerson(6, "P006", "Sarah", "Taylor", "Marketing Specialist"));
-            people.add(createPerson(7, "P007", "James", "Anderson", "HR Manager"));
-            people.add(createPerson(8, "P008", "Emma", "Thomas", "Financial Analyst"));
-            people.add(createPerson(9, "P009", "Robert", "Jackson", "Sales Executive"));
-            people.add(createPerson(10, "P010", "Olivia", "White", "Content Writer"));
+            people.add(personPojo.create(1, "P001", "John", "Doe", "Software Engineer"));
+            people.add(personPojo.create(2, "P002", "Jane", "Smith", "Data Scientist"));
+            people.add(personPojo.create(3, "P003", "Michael", "Johnson", "Product Manager"));
+            people.add(personPojo.create(4, "P004", "Emily", "Williams", "UX Designer"));
+            people.add(personPojo.create(5, "P005", "David", "Brown", "System Administrator"));
+            people.add(personPojo.create(6, "P006", "Sarah", "Taylor", "Marketing Specialist"));
+            people.add(personPojo.create(7, "P007", "James", "Anderson", "HR Manager"));
+            people.add(personPojo.create(8, "P008", "Emma", "Thomas", "Financial Analyst"));
+            people.add(personPojo.create(9, "P009", "Robert", "Jackson", "Sales Executive"));
+            people.add(personPojo.create(10, "P010", "Olivia", "White", "Content Writer"));
 
             // Insert one person
             System.out.println("\n--- Inserting: " + people.get(0));
@@ -189,19 +189,6 @@ public class testPojo {
         }
     }
 
-    /**
-     * Helper method to create a personPojo object
-     */
-    private static personPojo createPerson(Integer id, String idStr, String firstName, String lastName, String str) {
-        personPojo person = new personPojo();
-        person.id = id;
-        person.idStr = idStr;
-        person.firstName = firstName;
-        person.lastName = lastName;
-        person.str = str;
-        return person;
-    }
-
     // test pojo
     @Table(
             zone = @Zone(value = "test_zone", storageProfiles = "default")
@@ -221,6 +208,20 @@ public class testPojo {
         String lastName;
 
         String str;
+
+        // Default constructor
+        public personPojo() {}
+        
+        // Static factory method for creating instances
+        public static personPojo create(Integer id, String idStr, String firstName, String lastName, String str) {
+            personPojo person = new personPojo();
+            person.id = id;
+            person.idStr = idStr;
+            person.firstName = firstName;
+            person.lastName = lastName;
+            person.str = str;
+            return person;
+        }
 
         // Getters and setters
         public Integer getId() {return id;}
