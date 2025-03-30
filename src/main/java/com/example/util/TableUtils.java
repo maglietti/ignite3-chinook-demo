@@ -24,7 +24,7 @@ public class TableUtils {
         try {
             // Query system.zones to check if the zone exists
             var result = client.sql().execute(null, 
-                "SELECT name FROM system.zones WHERE name = ?", zoneName);
+                "SELECT name FROM system.zones WHERE name = ?", zoneName.toUpperCase());
             return result.hasNext(); // If any rows are returned, the zone exists
         } catch (Exception e) {
             System.err.println("Error checking if zone exists: " + e.getMessage());
@@ -117,7 +117,7 @@ public class TableUtils {
                     .replicas(2)
                     .storageProfiles("default")
                     .build();
-            System.out.println("--- Creating Distribution Zone: " + zoneChinook);
+            System.out.println("--- Creating Zone: " + zoneChinook);
             client.catalog().createZone(zoneChinook);
 
             // Create the ChinookReplicated distribution zone with 3 replicas and 25 partitions
@@ -127,7 +127,7 @@ public class TableUtils {
                     .partitions(25)
                     .storageProfiles("default")
                     .build();
-            System.out.println("--- Creating Distribution Zone: " + zoneChinookReplicated);
+            System.out.println("--- Creating Zone: " + zoneChinookReplicated);
             client.catalog().createZone(zoneChinookReplicated);
 
             System.out.println("=== Distribution zones created successfully");
@@ -146,7 +146,7 @@ public class TableUtils {
      */
     public static boolean createTables(IgniteClient client) {
         try {
-            System.out.println("=== Creating tables ===");
+            System.out.println("\n=== Creating tables");
 
             // Use IgniteCatalog.createTable to create tables from annotated classes
             // Create tables in order to handle dependencies

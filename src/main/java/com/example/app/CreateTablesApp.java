@@ -16,17 +16,16 @@ public class CreateTablesApp {
         java.util.logging.Logger.getLogger("").setLevel(java.util.logging.Level.WARNING);
 
         // Connect to the Ignite cluster
+        System.out.println("=== Chinook Table Builder ===");
         try (IgniteClient client = ChinookUtils.connectToCluster()) {
             if (client == null) {
                 System.err.println("Failed to connect to the Ignite cluster. Exiting.");
                 return;
             }
 
-            System.out.println(">>> Connected to the cluster: " + client.connections());
-
             // First, check if tables already exist
             if (TableUtils.tableExists(client, "Artist")) {
-                System.out.println("Tables appear to already exist.");
+                System.out.println("\n--- Existing tables detected in the database.");
                 System.out.println("Do you want to drop existing tables and recreate them? (Y/N)");
 
                 // Simple way to get user input
@@ -37,7 +36,6 @@ public class CreateTablesApp {
 
                 if (input.equals("Y")) {
                     // Drop existing tables
-                    System.out.println("Dropping existing tables...");
                     TableUtils.dropTables(client);
                 } else {
                     System.out.println("Exiting without recreating tables.");
@@ -62,7 +60,6 @@ public class CreateTablesApp {
             ChinookUtils.closeClient(client);
 
             System.out.println("\nChinook database schema created successfully!");
-            System.out.println("You can now run LoadDataApp to populate the database with sample data.");
 
         } catch (Exception e) {
             System.err.println("Error creating tables: " + e.getMessage());

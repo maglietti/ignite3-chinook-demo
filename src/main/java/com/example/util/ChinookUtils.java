@@ -31,7 +31,7 @@ public class ChinookUtils {
                     .addresses(NODE_ADDRESSES)
                     .build();
 
-            System.out.println("Connected to the cluster: " + client.connections());
+            System.out.println(">>> Connected to the cluster: " + client.connections());
             return client;
         } catch (Exception e) {
             System.err.println("An error occurred: " + e.getMessage());

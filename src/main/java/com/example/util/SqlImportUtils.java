@@ -130,7 +130,7 @@ public class SqlImportUtils {
         final int MAX_BATCH_SIZE = 1000;
         
         // First, process zones, tables, and index statements
-        System.out.println("=== Processing distribution zones, table definitions, and indexes ===");
+        System.out.println("--- Processing distribution zones, table definitions, and indexes");
         for (String statement : statements) {
             currentStatement++;
             
@@ -165,7 +165,6 @@ public class SqlImportUtils {
                 // Execute the statement
                 client.sql().execute(null, statement);
                 successCount++;
-                System.out.println("  Success!");
             } catch (Exception e) {
                 // Handle exceptions differently based on statement type
                 if (isCreateZoneStatement(statement)) {
@@ -181,7 +180,7 @@ public class SqlImportUtils {
         }
         
         // Then, process all DML statements
-        System.out.println("\n=== Loading data (DML statements) ===");
+        System.out.println("--- Loading data (DML statements)");
         currentStatement = 0;
         
         for (String statement : statements) {
@@ -200,7 +199,7 @@ public class SqlImportUtils {
                 // For INSERT statements, check if batch splitting is needed
                 if (statementType.equals("INSERT")) {
                     int approxRows = countInsertRows(statement);
-                    System.out.println("[" + currentStatement + "/" + totalStatements + "] Found " + 
+                    System.out.println("[" + currentStatement + "/" + totalStatements + "] " +
                                         statementType + " for table " + targetTable + 
                                         " with " + approxRows + " rows");
                     
@@ -223,14 +222,9 @@ public class SqlImportUtils {
                     }
                 }
                 
-                // For non-INSERT statements or small INSERTs, execute directly
-                System.out.println("[" + currentStatement + "/" + totalStatements + "] Executing " + 
-                                  statementType + " for table " + targetTable);
-                
                 // Execute the statement
                 client.sql().execute(null, statement);
                 successCount++;
-                System.out.println("  Success!");
             } catch (Exception e) {
                 System.err.println("  Error executing statement: " + e.getMessage());
             }

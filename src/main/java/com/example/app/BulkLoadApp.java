@@ -32,21 +32,20 @@ public class BulkLoadApp {
         Scanner scanner = new Scanner(System.in);
 
         // Connect to the Ignite cluster
+        System.out.println("=== Chinook Bulk Loader ===");
         try (IgniteClient client = ChinookUtils.connectToCluster()) {
             if (client == null) {
                 System.err.println("Failed to connect to the cluster. Exiting.");
                 return;
             }
 
-            System.out.println(">>> Connected to the cluster: " + client.connections());
-
             // Check if tables already exist and ask to drop them
             if (TableUtils.tableExists(client, "Artist") ||
                 TableUtils.tableExists(client, "Album") ||
                 TableUtils.tableExists(client, "Track")) {
 
-                System.out.println("--- Existing tables detected in the database.");
-                System.out.println("\nDo you want to drop existing tables before loading new data? (Y/N)");
+                System.out.println("\n--- Existing tables detected in the database.");
+                System.out.println("Do you want to drop existing tables before loading new data? (Y/N)");
                 String dropTablesInput = scanner.nextLine().trim().toUpperCase();
 
                 if (dropTablesInput.equals("Y")) {
@@ -70,8 +69,8 @@ public class BulkLoadApp {
             }
 
             // Check if required distribution zones exist, create if not
-            if (!TableUtils.zoneExists(client, "Chinook")) {
-                System.out.println("Required distribution zones not found. Creating zones...");
+            if (!TableUtils.zoneExists(client, "Chinook") &&
+                !TableUtils.zoneExists(client, "ChinookReplicated")) {
                 boolean zonesCreated = TableUtils.createDistributionZones(client);
                 if (!zonesCreated) {
                     System.err.println("Failed to create distribution zones. Exiting.");
@@ -88,12 +87,6 @@ public class BulkLoadApp {
             }
 
             // Display available SQL files
-            System.out.println("\n=== Available SQL files:");
-            for (int i = 0; i < sqlFiles.size(); i++) {
-                System.out.println((i + 1) + ". " + sqlFiles.get(i));
-            }
-
-            // Ask user to select a file
             System.out.println("\n=== Available SQL files:");
             for (int i = 0; i < sqlFiles.size(); i++) {
                 System.out.println((i + 1) + ". " + sqlFiles.get(i));
@@ -145,10 +138,10 @@ public class BulkLoadApp {
             System.out.println("--- Parsed " + sqlStatements.size() + " SQL statements from file.");
 
             // Execute the SQL statements
-            System.out.println("\n=== Starting bulk load from SQL file ===");
+            System.out.println("\n=== Starting bulk load from SQL file");
             int successCount = SqlImportUtils.executeSqlStatements(client, sqlStatements);
 
-            System.out.println("\n=== Bulk load completed ===");
+            System.out.println("\n=== Bulk load completed");
             System.out.println("Successfully executed " + successCount + " out of " + sqlStatements.size() + " statements.");
 
             // Verify the data was loaded by counting some records
