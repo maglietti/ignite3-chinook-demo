@@ -6,17 +6,23 @@ This document provides practical code examples and patterns for working with Apa
 
 ```java
 public static IgniteClient connectToCluster() {
-    try {
-        IgniteClient client = IgniteClient.builder()
-                .addresses(NODE_ADDRESSES)
-                .build();
+   try {
+      // Define node addresses
+      String[] nodeAddresses = {
+              "localhost:10800", "localhost:10801", "localhost:10802"
+      };
 
-        System.out.println("Connected to the cluster: " + client.connections());
-        return client;
-    } catch (Exception e) {
-        System.err.println("An error occurred: " + e.getMessage());
-        return null;
-    }
+      // Build the client and connect
+      IgniteClient client = IgniteClient.builder()
+              .addresses(nodeAddresses)
+              .build();
+
+      System.out.println("Connected to the cluster: " + client.connections());
+      return client;
+   } catch (Exception e) {
+      System.err.println("An error occurred: " + e.getMessage());
+      return null;
+   }
 }
 ```
 
@@ -24,13 +30,13 @@ Usage:
 
 ```java
 try (IgniteClient client = ChinookUtils.connectToCluster()) {
-    if (client == null) {
+        if (client == null) {
         System.err.println("Failed to connect to the cluster. Exiting.");
         return;
-    }
-    
-    // Use the client...
-}
+                }
+
+                // Use the client...
+                }
 ```
 
 ## Creating Tables: POJO-based vs. SQL-based Approaches
@@ -39,32 +45,32 @@ try (IgniteClient client = ChinookUtils.connectToCluster()) {
 
 ```java
 public static boolean createTables(IgniteClient client) {
-    try {
-        System.out.println("=== Creating tables ===");
+   try {
+      System.out.println("=== Creating tables ===");
 
-        // Use IgniteCatalog.createTable to create tables from annotated classes
-        System.out.println("--- Creating Artist table");
-        client.catalog().createTable(Artist.class);
+      // Create tables from annotated classes
+      System.out.println("--- Creating Artist table");
+      client.catalog().createTable(Artist.class);
 
-        System.out.println("--- Creating Genre table");
-        client.catalog().createTable(Genre.class);
+      System.out.println("--- Creating Genre table");
+      client.catalog().createTable(Genre.class);
 
-        System.out.println("--- Creating MediaType table");
-        client.catalog().createTable(MediaType.class);
+      System.out.println("--- Creating MediaType table");
+      client.catalog().createTable(MediaType.class);
 
-        System.out.println("--- Creating Album table");
-        client.catalog().createTable(Album.class);
+      System.out.println("--- Creating Album table");
+      client.catalog().createTable(Album.class);
 
-        System.out.println("--- Creating Track table");
-        client.catalog().createTable(Track.class);
+      System.out.println("--- Creating Track table");
+      client.catalog().createTable(Track.class);
 
-        System.out.println("=== All tables created successfully!");
-        return true;
-    } catch (Exception e) {
-        System.err.println("Error creating tables: " + e.getMessage());
-        e.printStackTrace();
-        return false;
-    }
+      System.out.println("=== All tables created successfully!");
+      return true;
+   } catch (Exception e) {
+      System.err.println("Error creating tables: " + e.getMessage());
+      e.printStackTrace();
+      return false;
+   }
 }
 ```
 
@@ -72,38 +78,150 @@ public static boolean createTables(IgniteClient client) {
 
 ```java
 public static void createTablesWithSql(IgniteClient client) {
-    try {
-        // Create a distribution zone
-        client.sql().execute(null, 
-            "CREATE ZONE IF NOT EXISTS Chinook " +
-            "WITH STORAGE_PROFILES='default', REPLICAS=2");
-        
-        // Create Artist table
-        client.sql().execute(null,
-            "CREATE TABLE IF NOT EXISTS Artist (" +
-            "  ArtistId INT PRIMARY KEY, " +
-            "  Name VARCHAR" +
-            ") ZONE Chinook");
-        
-        // Create Album table with co-location
-        client.sql().execute(null,
-            "CREATE TABLE IF NOT EXISTS Album (" +
-            "  AlbumId INT, " +
-            "  Title VARCHAR NOT NULL, " +
-            "  ArtistId INT, " +
-            "  PRIMARY KEY (AlbumId, ArtistId)" +
-            ") ZONE Chinook COLOCATE BY (ArtistId)");
-            
-        System.out.println("Tables created successfully.");
-    } catch (Exception e) {
-        System.err.println("Error creating tables with SQL: " + e.getMessage());
-    }
+   try {
+      // Create a distribution zone
+      client.sql().execute(null,
+              "CREATE ZONE IF NOT EXISTS Chinook " +
+                      "WITH STORAGE_PROFILES='default', REPLICAS=2");
+
+      // Create Artist table
+      client.sql().execute(null,
+              "CREATE TABLE IF NOT EXISTS Artist (" +
+                      "  ArtistId INT PRIMARY KEY, " +
+                      "  Name VARCHAR" +
+                      ") ZONE Chinook");
+
+      // Create Album table with co-location
+      client.sql().execute(null,
+              "CREATE TABLE IF NOT EXISTS Album (" +
+                      "  AlbumId INT, " +
+                      "  Title VARCHAR NOT NULL, " +
+                      "  ArtistId INT, " +
+                      "  PRIMARY KEY (AlbumId, ArtistId)" +
+                      ") ZONE Chinook COLOCATE BY (ArtistId)");
+
+      System.out.println("Tables created successfully.");
+   } catch (Exception e) {
+      System.err.println("Error creating tables with SQL: " + e.getMessage());
+   }
 }
 ```
 
+This method is used by the `BulkLoadApp` to create tables from SQL statements in a file.
+
 ## Basic CRUD Operations
 
-### Inserting a Single Record
+### SQL-to-POJO Pattern
+
+Instead of using direct POJO-to-table mapping (which can sometimes have case-sensitivity issues), you can use a SQL-to-POJO approach for greater reliability:
+
+```java
+// Retrieve artists using SQL and convert to POJOs
+List<Artist> getAllArtists(IgniteClient client) {
+   List<Artist> artists = new ArrayList<>();
+
+   client.sql().execute(null, "SELECT ArtistId, Name FROM Artist")
+           .forEachRemaining(row -> {
+              Artist artist = new Artist();
+              artist.setArtistId(row.intValue("ArtistId"));
+              artist.setName(row.stringValue("Name"));
+              artists.add(artist);
+           });
+
+   return artists;
+}
+
+// Get a specific artist by ID
+Artist getArtistById(IgniteClient client, int artistId) {
+   var result = client.sql().execute(null,
+           "SELECT ArtistId, Name FROM Artist WHERE ArtistId = ?",
+           artistId);
+
+   if (result.hasNext()) {
+      var row = result.next();
+      Artist artist = new Artist();
+      artist.setArtistId(row.intValue("ArtistId"));
+      artist.setName(row.stringValue("Name"));
+      return artist;
+   }
+
+   return null;
+}
+
+// Get all albums for an artist
+List<Album> getArtistAlbums(IgniteClient client, int artistId) {
+   List<Album> albums = new ArrayList<>();
+
+   client.sql().execute(null,
+                   "SELECT AlbumId, Title, ArtistId FROM Album WHERE ArtistId = ?",
+                   artistId)
+           .forEachRemaining(row -> {
+              Album album = new Album();
+              album.setAlbumId(row.intValue("AlbumId"));
+              album.setTitle(row.stringValue("Title"));
+              album.setArtistId(row.intValue("ArtistId"));
+              albums.add(album);
+           });
+
+   return albums;
+}
+
+// Update an artist using SQL
+boolean updateArtist(IgniteClient client, Artist artist) {
+   try {
+      client.sql().execute(null,
+              "UPDATE Artist SET Name = ? WHERE ArtistId = ?",
+              artist.getName(), artist.getArtistId());
+      return true;
+   } catch (Exception e) {
+      System.err.println("Error updating artist: " + e.getMessage());
+      return false;
+   }
+}
+
+// Delete an artist using SQL
+boolean deleteArtist(IgniteClient client, int artistId) {
+   try {
+      client.sql().execute(null,
+              "DELETE FROM Artist WHERE ArtistId = ?", artistId);
+      return true;
+   } catch (Exception e) {
+      System.err.println("Error deleting artist: " + e.getMessage());
+      return false;
+   }
+}
+```
+
+This approach:
+
+1. Uses SQL for data retrieval and modification
+2. Converts SQL results to POJOs on the client side
+3. Maintains type safety and object-oriented programming benefits
+4. Avoids case-sensitivity and mapping issues
+
+Usage:
+
+```java
+// Get all artists
+List<Artist> artists = getAllArtists(client);
+artists.forEach(artist -> System.out.println(artist.getName()));
+
+// Get a specific artist
+Artist queen = getArtistById(client, 6);
+if (queen != null) {
+    System.out.println("Found artist: " + queen.getName());
+    
+    // Get all albums for this artist
+    List<Album> albums = getArtistAlbums(client, queen.getArtistId());
+    albums.forEach(album -> System.out.println("Album: " + album.getTitle()));
+    
+    // Update the artist
+    queen.setName("Queen (Updated)");
+    updateArtist(client, queen);
+}
+```
+
+### Direct Key-Value Operations (Traditional Approach)
 
 ```java
 public static boolean addArtist(IgniteClient client, Artist artist) {
@@ -333,7 +451,7 @@ public static void findTopSellingTracks(IgniteClient client, int limit) {
                         System.out.println("Track: " + row.stringValue("Track") +
                                 ", Artist: " + row.stringValue("Artist") +
                                 ", Sales: " + row.intValue("SalesCount") +
-                                ", Revenue: $" + row.bigDecimalValue("Revenue")));
+                                ", Revenue: $" + row.decimalValue("Revenue")));
     } catch (Exception e) {
         System.err.println("Error finding top selling tracks: " + e.getMessage());
     }
@@ -387,6 +505,56 @@ Usage:
 
 ```java
 DataUtils.createRelatedEntitiesWithTransaction(client);
+```
+
+### SQL Transaction with SQL-to-POJO Approach
+
+```java
+public static boolean createRelatedEntitiesWithSqlTransaction(IgniteClient client) {
+    System.out.println("\n--- Creating related entities with SQL transaction ---");
+
+    try {
+        return client.transactions().runInTransaction(tx -> {
+            // Create a new artist
+            client.sql().execute(tx,
+                "INSERT INTO Artist (ArtistId, Name) VALUES (?, ?)",
+                7, "Pink Floyd");
+                
+            // Create a new album for this artist
+            client.sql().execute(tx,
+                "INSERT INTO Album (AlbumId, Title, ArtistId) VALUES (?, ?, ?)",
+                8, "The Dark Side of the Moon", 7);
+                
+            // Create tracks for the album (direct SQL)
+            client.sql().execute(tx,
+                "INSERT INTO Track (TrackId, Name, AlbumId, MediaTypeId, Milliseconds, UnitPrice) " +
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                10, "Time", 8, 1, 425032, new BigDecimal("0.99"));
+                
+            client.sql().execute(tx,
+                "INSERT INTO Track (TrackId, Name, AlbumId, MediaTypeId, Milliseconds, UnitPrice) " +
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                11, "Money", 8, 1, 382830, new BigDecimal("0.99"));
+
+            // Verify we can retrieve the data within the transaction
+            var result = client.sql().execute(tx, 
+                "SELECT a.Title, ar.Name FROM Album a " +
+                "JOIN Artist ar ON a.ArtistId = ar.ArtistId " +
+                "WHERE ar.ArtistId = ?", 7);
+                
+            if (result.hasNext()) {
+                var row = result.next();
+                System.out.println("Created album: " + row.stringValue("Title") + 
+                    " by " + row.stringValue("Name"));
+            }
+
+            return true;
+        });
+    } catch (Exception e) {
+        System.err.println("Transaction failed: " + e.getMessage());
+        return false;
+    }
+}
 ```
 
 ### Transaction with Error Handling
@@ -594,140 +762,6 @@ int successCount = executeSqlStatements(client, sqlStatements);
 System.out.println("Successfully executed " + successCount + " statements.");
 ```
 
-## Performance Comparison: POJO vs. SQL
-
-Here's a simple benchmark to compare POJO-based operations with SQL-based operations:
-
-```java
-public static void benchmarkOperations(IgniteClient client) {
-    System.out.println("\n=== Performance Benchmark ===");
-    
-    // Prepare data
-    List<Artist> artists = new ArrayList<>();
-    for (int i = 0; i < 1000; i++) {
-        artists.add(new Artist(1000 + i, "Artist" + i));
-    }
-    
-    // POJO-based insert
-    long start = System.currentTimeMillis();
-    Table artistTable = client.tables().table("Artist");
-    RecordView<Artist> artistView = artistTable.recordView(Artist.class);
-    artistView.upsertAll(null, artists);
-    long pojoInsertTime = System.currentTimeMillis() - start;
-    
-    // SQL-based insert
-    start = System.currentTimeMillis();
-    for (Artist artist : artists) {
-        client.sql().execute(null, 
-            "INSERT INTO Artist (ArtistId, Name) VALUES (?, ?)",
-            artist.getArtistId() + 1000, artist.getName() + "_SQL");
-    }
-    long sqlInsertTime = System.currentTimeMillis() - start;
-    
-    // POJO-based query
-    start = System.currentTimeMillis();
-    List<Artist> result1 = new ArrayList<>();
-    for (int i = 0; i < 100; i++) {
-        Artist artist = artistView.get(null, 1000 + i);
-        if (artist != null) {
-            result1.add(artist);
-        }
-    }
-    long pojoQueryTime = System.currentTimeMillis() - start;
-    
-    // SQL-based query
-    start = System.currentTimeMillis();
-    List<Artist> result2 = new ArrayList<>();
-    for (int i = 0; i < 100; i++) {
-        client.sql().execute(null, 
-            "SELECT * FROM Artist WHERE ArtistId = ?", 
-            2000 + i)
-        .forEachRemaining(row -> {
-            Artist artist = new Artist(
-                row.intValue("ArtistId"),
-                row.stringValue("Name")
-            );
-            result2.add(artist);
-        });
-    }
-    long sqlQueryTime = System.currentTimeMillis() - start;
-    
-    // Print results
-    System.out.println("POJO-based batch insert (1000 records): " + pojoInsertTime + "ms");
-    System.out.println("SQL-based individual inserts (1000 records): " + sqlInsertTime + "ms");
-    System.out.println("POJO-based queries (100 records): " + pojoQueryTime + "ms");
-    System.out.println("SQL-based queries (100 records): " + sqlQueryTime + "ms");
-}
-```
-
-## Working with Complex Queries
-
-### Using SQL Projections
-
-```java
-public static List<AlbumSummary> getAlbumSummaries(IgniteClient client) {
-    List<AlbumSummary> summaries = new ArrayList<>();
-    
-    try {
-        client.sql().execute(null,
-            "SELECT a.AlbumId, a.Title, ar.Name as ArtistName, " +
-            "COUNT(t.TrackId) as TrackCount, " +
-            "SUM(t.Milliseconds) / 60000.0 as TotalMinutes " +
-            "FROM Album a " +
-            "JOIN Artist ar ON a.ArtistId = ar.ArtistId " +
-            "JOIN Track t ON a.AlbumId = t.AlbumId " +
-            "GROUP BY a.AlbumId, a.Title, ar.Name " +
-            "ORDER BY a.Title")
-        .forEachRemaining(row -> {
-            AlbumSummary summary = new AlbumSummary();
-            summary.setAlbumId(row.intValue("AlbumId"));
-            summary.setTitle(row.stringValue("Title"));
-            summary.setArtistName(row.stringValue("ArtistName"));
-            summary.setTrackCount(row.intValue("TrackCount"));
-            summary.setTotalMinutes(row.doubleValue("TotalMinutes"));
-            summaries.add(summary);
-        });
-    } catch (Exception e) {
-        System.err.println("Error getting album summaries: " + e.getMessage());
-    }
-    
-    return summaries;
-}
-```
-
-### Using SQL for Advanced Aggregations
-
-```java
-public static void getGenreStatistics(IgniteClient client) {
-    try {
-        System.out.println("\n--- Genre Statistics ---");
-        client.sql().execute(null,
-            "SELECT g.Name as Genre, " +
-            "COUNT(t.TrackId) as TrackCount, " +
-            "AVG(t.Milliseconds / 60000.0) as AvgDurationMinutes, " +
-            "SUM(t.UnitPrice * il.Quantity) as TotalRevenue, " +
-            "COUNT(DISTINCT ar.ArtistId) as ArtistCount " +
-            "FROM Genre g " +
-            "JOIN Track t ON g.GenreId = t.GenreId " +
-            "JOIN Album a ON t.AlbumId = a.AlbumId " +
-            "JOIN Artist ar ON a.ArtistId = ar.ArtistId " +
-            "LEFT JOIN InvoiceLine il ON t.TrackId = il.TrackId " +
-            "GROUP BY g.GenreId, g.Name " +
-            "ORDER BY TotalRevenue DESC")
-        .forEachRemaining(row -> {
-            System.out.println("Genre: " + row.stringValue("Genre"));
-            System.out.println("  Track Count: " + row.intValue("TrackCount"));
-            System.out.println("  Average Duration: " + String.format("%.2f", row.doubleValue("AvgDurationMinutes")) + " minutes");
-            System.out.println("  Total Revenue: $" + row.bigDecimalValue("TotalRevenue"));
-            System.out.println("  Artist Count: " + row.intValue("ArtistCount"));
-            System.out.println();
-        });
-    } catch (Exception e) {
-        System.err.println("Error getting genre statistics: " + e.getMessage());
-    }
-}
-```
-
 ## Performance Best Practices
 
 1. **Use Batch Operations**: When inserting or updating multiple records, use batch operations like `upsertAll()` instead of individual operations.
@@ -757,18 +791,16 @@ public class Album { ... }
    - Write-heavy workloads: Consider RocksDB storage engine
    - Read-heavy workloads: Use Apache Ignite Page Memory engine
 
-4. **Use Prepared Statements**: For frequently executed queries, reuse SQL statements to reduce parsing overhead.
+4. **Use SQL for Complex Operations**: For complex aggregations and joins, SQL often provides better performance than client-side operations.
 
 ```java
-// Create a prepared statement
-SqlFieldsQuery query = new SqlFieldsQuery("SELECT * FROM Artist WHERE Name LIKE ?");
-
-// Execute with different parameters
-query.setArgs("A%");
-List<List<?>> result1 = client.sql().execute(null, query);
-
-query.setArgs("B%");
-List<List<?>> result2 = client.sql().execute(null, query);
+// Efficient SQL-based aggregation
+client.sql().execute(null,
+    "SELECT ar.Name as Artist, COUNT(a.AlbumId) as AlbumCount " +
+    "FROM Artist ar " +
+    "LEFT JOIN Album a ON ar.ArtistId = a.ArtistId " +
+    "GROUP BY ar.Name " +
+    "ORDER BY AlbumCount DESC");
 ```
 
 5. **Keep Transactions Short**: Long-running transactions can cause contention; keep them as short as possible.
@@ -792,6 +824,49 @@ client.sql().execute(null, "CREATE INDEX idx_artist_name ON Artist(Name)");
     }
 )
 public class Artist { ... }
+```
+
+## Handling Case Sensitivity in Column Names
+
+When working with POJOs and Ignite tables, case sensitivity can sometimes cause issues. Here are strategies to handle this:
+
+1. **Use SQL-to-POJO Pattern**: Avoid direct POJO mapping issues by using SQL to retrieve data and manually convert to POJOs.
+
+```java
+// Safe approach that handles case sensitivity
+List<Artist> artists = new ArrayList<>();
+client.sql().execute(null, "SELECT ArtistId, Name FROM Artist")
+    .forEachRemaining(row -> {
+        Artist artist = new Artist();
+        artist.setArtistId(row.intValue("ArtistId"));
+        artist.setName(row.stringValue("Name"));
+        artists.add(artist);
+    });
+```
+
+2. **Match Case Exactly in Annotations**: Ensure your Java field annotations match the database column names exactly.
+
+```java
+// Correct annotation matching database column exactly
+@Column(value = "ArtistId", nullable = false)
+private Integer artistId;
+
+// Instead of
+@Column(value = "artistId", nullable = false)
+private Integer artistId;
+```
+
+3. **Handle Nullable Fields Safely**: Use try-catch blocks when retrieving potentially null values from SQL results.
+
+```java
+Track track = new Track();
+// Required fields
+track.setTrackId(row.intValue("TrackId"));
+track.setName(row.stringValue("Name"));
+
+// Potentially null fields
+try { track.setGenreId(row.intValue("GenreId")); } catch (Exception e) { /* Value is null */ }
+try { track.setComposer(row.stringValue("Composer")); } catch (Exception e) { /* Value is null */ }
 ```
 
 ## CLI Examples
@@ -846,9 +921,118 @@ exit
 | Data Loading | Individual API calls | SQL INSERT statements |
 | Flexibility | More control over each step | All-in-one approach |
 | Performance | Good for small datasets | Better for large datasets |
-| Extensibility | Easy to extend with custom code | Relies on SQL knowledge |
+| Extensibility | Easy to extend with custom code | Requires SQL knowledge |
 | Error Handling | Fine-grained error handling | Statement-level error handling |
 | Learning Curve | Requires understanding of Java API | Requires SQL knowledge |
+
+## Handling API Limitations and Mismatches
+
+When working with Ignite 3, you might occasionally encounter API limitations or mapping issues. Here are some strategies to handle these situations:
+
+### Field Case Sensitivity
+
+1. **Align annotation case exactly with database columns**
+
+```java
+@Column(value = "ArtistId", nullable = false)  // Correct
+private Integer artistId;
+```
+
+2. **Use SQL for retrieval and manually construct POJOs**
+
+```java
+// Reliable approach avoiding case sensitivity issues
+List<Artist> artists = new ArrayList<>();
+client.sql().execute(null, "SELECT ArtistId, Name FROM Artist")
+    .forEachRemaining(row -> {
+        Artist artist = new Artist();
+        artist.setArtistId(row.intValue("ArtistId"));
+        artist.setName(row.stringValue("Name"));
+        artists.add(artist);
+    });
+```
+
+### Handling NULL Values
+
+SQL result sets require defensive programming when handling potentially NULL values:
+
+```java
+Track track = new Track();
+
+// Safe approach using try-catch for potentially null values
+try { track.setGenreId(row.intValue("GenreId")); } 
+catch (Exception e) { /* Field was null */ }
+
+try { track.setComposer(row.stringValue("Composer")); } 
+catch (Exception e) { /* Field was null */ }
+```
+
+### Managing Decimal Values
+
+For decimal/monetary fields, use the correct method to retrieve values:
+
+```java
+// Correct way to get decimal values
+track.setUnitPrice(row.decimalValue("UnitPrice"));
+
+// NOT: row.bigDecimalValue("UnitPrice")
+```
+
+## Combining OOP and SQL Approaches
+
+A hybrid approach combining object-oriented programming with SQL can often yield the best results:
+
+```java
+// 1. Use SQL for efficient data retrieval with filtering/joining
+var result = client.sql().execute(null,
+    "SELECT t.TrackId, t.Name, t.Composer, t.Milliseconds, " +
+    "a.Title as AlbumTitle, ar.Name as ArtistName " +
+    "FROM Track t " +
+    "JOIN Album a ON t.AlbumId = a.AlbumId " +
+    "JOIN Artist ar ON a.ArtistId = ar.ArtistId " +
+    "WHERE ar.Name = ? " +
+    "ORDER BY t.Name", 
+    artistName);
+
+// 2. Convert SQL results to domain objects
+List<TrackDetail> trackDetails = new ArrayList<>();
+result.forEachRemaining(row -> {
+    TrackDetail detail = new TrackDetail();
+    detail.setTrackId(row.intValue("TrackId"));
+    detail.setTrackName(row.stringValue("Name"));
+    detail.setAlbumTitle(row.stringValue("AlbumTitle"));
+    detail.setArtistName(row.stringValue("ArtistName"));
+    try { detail.setComposer(row.stringValue("Composer")); } 
+    catch (Exception e) { /* NULL value */ }
+    detail.setDurationMinutes(row.intValue("Milliseconds") / 60000.0);
+    trackDetails.add(detail);
+});
+
+// 3. Use Java streams for client-side processing
+Map<String, List<TrackDetail>> tracksByArtist = trackDetails.stream()
+    .collect(Collectors.groupingBy(TrackDetail::getArtistName));
+
+// 4. Generate business insights
+tracksByArtist.forEach((artist, tracks) -> {
+    double avgDuration = tracks.stream()
+        .mapToDouble(TrackDetail::getDurationMinutes)
+        .average()
+        .orElse(0);
+    System.out.println("Artist: " + artist);
+    System.out.println("Number of tracks: " + tracks.size());
+    System.out.println("Average track duration: " + String.format("%.2f", avgDuration) + " minutes");
+    System.out.println("Tracks: " + tracks.stream()
+        .map(TrackDetail::getTrackName)
+        .collect(Collectors.joining(", ")));
+    System.out.println();
+});
+```
+
+This combines:
+
+- SQL's power for data retrieval, joining, and filtering
+- Object-oriented approach for code organization and domain modeling
+- Java streams for in-memory data transformation and analysis
 
 ## Further Reading
 

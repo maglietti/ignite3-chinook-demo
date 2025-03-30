@@ -1,13 +1,19 @@
 package com.example.app;
 
+import com.example.model.*;
 import com.example.util.ChinookUtils;
 import org.apache.ignite.client.IgniteClient;
 import org.apache.ignite.client.IgniteClientConnectionException;
 import org.apache.ignite.client.IgniteClientFeatureNotSupportedByServerException;
 
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.stream.Collectors;
+
 /**
  * Music Catalog Analytics Application
  * Demonstrates advanced use of Apache Ignite 3 with the Chinook database
+ * Using SQL queries with Java objects for data processing
  */
 public class Main {
     public static void main(String[] args) {
@@ -38,6 +44,178 @@ public class Main {
             }
 
             System.out.println("\n===== CHINOOK MUSIC CATALOG ANALYTICS =====\n");
+
+            // List all artists using SQL and convert to POJOs
+            List<Artist> artists = new ArrayList<>();
+            client.sql().execute(null, "SELECT ArtistId, Name FROM Artist")
+                    .forEachRemaining(row -> {
+                        Artist artist = new Artist();
+                        artist.setArtistId(row.intValue("ArtistId"));
+                        artist.setName(row.stringValue("Name"));
+                        artists.add(artist);
+                    });
+
+            System.out.println("Retrieved " + artists.size() + " artists using SQL-to-POJO operations");
+            System.out.println("First 5 artists:");
+            artists.stream().limit(5).forEach(artist ->
+                    System.out.println("  - " + artist.getArtistId() + ": " + artist.getName()));
+
+            // Find an artist by ID and their albums
+            int targetArtistId = 1; // AC/DC
+            Artist targetArtist = null;
+            var artistResult = client.sql().execute(null,
+                    "SELECT ArtistId, Name FROM Artist WHERE ArtistId = ?",
+                    targetArtistId);
+
+            if (artistResult.hasNext()) {
+                var row = artistResult.next();
+                targetArtist = new Artist();
+                targetArtist.setArtistId(row.intValue("ArtistId"));
+                targetArtist.setName(row.stringValue("Name"));
+            }
+
+            if (targetArtist != null) {
+                System.out.println("\nFound artist by ID: " + targetArtist.getName());
+
+                // Get their albums using SQL and convert to POJOs
+                List<Album> artistAlbums = new ArrayList<>();
+                client.sql().execute(null,
+                                "SELECT AlbumId, Title, ArtistId FROM Album WHERE ArtistId = ?",
+                                targetArtistId)
+                        .forEachRemaining(row -> {
+                            Album album = new Album();
+                            album.setAlbumId(row.intValue("AlbumId"));
+                            album.setTitle(row.stringValue("Title"));
+                            album.setArtistId(row.intValue("ArtistId"));
+                            artistAlbums.add(album);
+                        });
+
+                System.out.println("Albums by " + targetArtist.getName() + ":");
+                artistAlbums.forEach(album ->
+                        System.out.println("  - " + album.getAlbumId() + ": " + album.getTitle()));
+
+                // Get tracks for the first album
+                if (!artistAlbums.isEmpty()) {
+                    Album firstAlbum = artistAlbums.get(0);
+                    List<Track> albumTracks = new ArrayList<>();
+                    client.sql().execute(null,
+                                    "SELECT TrackId, Name, AlbumId, MediaTypeId, GenreId, Composer, " +
+                                            "Milliseconds, Bytes, UnitPrice FROM Track WHERE AlbumId = ?",
+                                    firstAlbum.getAlbumId())
+                            .forEachRemaining(row -> {
+                                Track track = new Track();
+                                track.setTrackId(row.intValue("TrackId"));
+                                track.setName(row.stringValue("Name"));
+                                track.setAlbumId(row.intValue("AlbumId"));
+                                track.setMediaTypeId(row.intValue("MediaTypeId"));
+
+                                // Handle potentially null values defensively
+                                try { track.setGenreId(row.intValue("GenreId")); } catch (Exception e) { /* Value is null */ }
+                                try { track.setComposer(row.stringValue("Composer")); } catch (Exception e) { /* Value is null */ }
+                                track.setMilliseconds(row.intValue("Milliseconds"));
+                                try { track.setBytes(row.intValue("Bytes")); } catch (Exception e) { /* Value is null */ }
+                                try { track.setUnitPrice(row.decimalValue("UnitPrice")); } catch (Exception e) { /* Value is null */ }
+                                albumTracks.add(track);
+                            });
+
+                    System.out.println("\nTracks from album '" + firstAlbum.getTitle() + "':");
+                    albumTracks.forEach(track ->
+                            System.out.println("  - " + track.getTrackId() + ": " + track.getName()));
+                }
+            }
+
+            // Calculate statistics using POJOs and Java streams
+            System.out.println("\nTrack Length Statistics (SQL-to-POJO with Java streams):");
+            List<Track> allTracks = new ArrayList<>();
+            client.sql().execute(null, "SELECT TrackId, Name, Milliseconds FROM Track")
+                    .forEachRemaining(row -> {
+                        Track track = new Track();
+                        track.setTrackId(row.intValue("TrackId"));
+                        track.setName(row.stringValue("Name"));
+                        track.setMilliseconds(row.intValue("Milliseconds"));
+                        allTracks.add(track);
+                    });
+
+            // Calculate average, min, max track length using Java streams
+            OptionalDouble avgLength = allTracks.stream()
+                    .mapToInt(Track::getMilliseconds)
+                    .average();
+
+            OptionalInt minLength = allTracks.stream()
+                    .mapToInt(Track::getMilliseconds)
+                    .min();
+
+            OptionalInt maxLength = allTracks.stream()
+                    .mapToInt(Track::getMilliseconds)
+                    .max();
+
+            System.out.println("Total tracks: " + allTracks.size());
+            System.out.println("Average length: " + String.format("%.2f", avgLength.orElse(0) / 60000) + " minutes");
+            System.out.println("Shortest track: " + String.format("%.2f", minLength.orElse(0) / 60000.0) + " minutes");
+            System.out.println("Longest track: " + String.format("%.2f", maxLength.orElse(0) / 60000.0) + " minutes");
+
+            // Count tracks with non-null composers
+            System.out.println("\nTracks with Composer Information (using Java streams):");
+            List<Track> tracksWithComposerInfo = new ArrayList<>();
+            client.sql().execute(null, "SELECT TrackId, Name, Composer FROM Track WHERE Composer IS NOT NULL")
+                    .forEachRemaining(row -> {
+                        Track track = new Track();
+                        track.setTrackId(row.intValue("TrackId"));
+                        track.setName(row.stringValue("Name"));
+                        track.setComposer(row.stringValue("Composer"));
+                        tracksWithComposerInfo.add(track);
+                    });
+
+            System.out.println("Tracks with composer information: " + tracksWithComposerInfo.size());
+            System.out.println("Percentage of all tracks: " +
+                    String.format("%.1f", (tracksWithComposerInfo.size() * 100.0 / allTracks.size())) + "%");
+
+            // First 3 composers for example
+            System.out.println("Sample tracks with composers:");
+            tracksWithComposerInfo.stream()
+                    .limit(3)
+                    .forEach(track -> System.out.println("  - " + track.getName() +
+                            " (by " + track.getComposer() + ")"));
+
+            // Get and sort all genres using POJOs
+            List<Genre> allGenres = new ArrayList<>();
+            client.sql().execute(null, "SELECT GenreId, Name FROM Genre")
+                    .forEachRemaining(row -> {
+                        Genre genre = new Genre();
+                        genre.setGenreId(row.intValue("GenreId"));
+                        genre.setName(row.stringValue("Name"));
+                        allGenres.add(genre);
+                    });
+
+            System.out.println("\nAll music genres (sorted alphabetically using Java):");
+            allGenres.stream()
+                    .sorted(Comparator.comparing(Genre::getName))
+                    .forEach(genre ->
+                            System.out.println("  - " + genre.getGenreId() + ": " + genre.getName()));
+
+            // Find the longest tracks using SQL and POJOs
+            System.out.println("\nTop 5 Longest Tracks (SQL-to-POJO approach):");
+            System.out.printf("%-40s | %-10s\n", "Track", "Length (min)");
+            System.out.println("------------------------------------------------------------");
+
+            List<Track> longestTracks = new ArrayList<>();
+            client.sql().execute(null,
+                            "SELECT Name, Milliseconds FROM Track ORDER BY Milliseconds DESC LIMIT 5")
+                    .forEachRemaining(row -> {
+                        Track track = new Track();
+                        track.setName(row.stringValue("Name"));
+                        track.setMilliseconds(row.intValue("Milliseconds"));
+                        longestTracks.add(track);
+                    });
+
+            longestTracks.forEach(track -> {
+                double minutes = track.getMilliseconds() / 60000.0;
+                System.out.printf("%-40s | %-10.2f\n",
+                        truncateString(track.getName(), 40), minutes);
+            });
+
+            // Now continue with the SQL-based analytics for more complex operations
+            System.out.println("\n===== SQL-BASED ANALYTICS =====\n");
 
             // Find top genres by track count
             analyzeGenrePopularity(client);
@@ -116,8 +294,7 @@ public class Main {
             var result = client.sql().execute(null,
                     "SELECT " +
                             "SUM(CASE WHEN Milliseconds < ? THEN 1 ELSE 0 END) as ShortTracks, " +
-                            "SUM(CASE WHEN Milliseconds >= ? AND Milliseconds < ? THEN 1 ELSE 0 END) as MediumTracks, "
-                            +
+                            "SUM(CASE WHEN Milliseconds >= ? AND Milliseconds < ? THEN 1 ELSE 0 END) as MediumTracks, " +
                             "SUM(CASE WHEN Milliseconds >= ? AND Milliseconds < ? THEN 1 ELSE 0 END) as LongTracks, " +
                             "SUM(CASE WHEN Milliseconds >= ? THEN 1 ELSE 0 END) as VeryLongTracks, " +
                             "CAST(AVG(Milliseconds/60000.0) AS DECIMAL(10,2)) as AvgMinutes, " +
