@@ -494,6 +494,5 @@ client.transactions().runInTransaction(tx -> {
 ## Further Reading
 
 - [Original Chinook Database](https://github.com/lerocha/chinook-database)
-- [Database Design Patterns for Distributed Systems](https://ignite.apache.org/docs/latest/concepts/data-modeling)
 - [Bulk Loading the Chinook Database](./bulk-load.md)
 - [POJO Mapping in Ignite 3](./pojo-mapping.md)
