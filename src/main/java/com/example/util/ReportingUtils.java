@@ -308,13 +308,13 @@ public class ReportingUtils {
         System.out.println("===== TOP ARTISTS BY ALBUM COUNT =====");
         try {
             var result = client.sql().execute(null,
-                    "SELECT ar.Name as Artist, COUNT(a.AlbumId) as AlbumCount, " +
-                            "COUNT(t.TrackId) as TrackCount " +
+                    "SELECT ar.Name as Artist, COUNT(DISTINCT a.AlbumId) as AlbumCount, " +
+                            "COUNT(DISTINCT t.TrackId) as TrackCount " +
                             "FROM Artist ar " +
                             "LEFT JOIN Album a ON ar.ArtistId = a.ArtistId " +
                             "LEFT JOIN Track t ON a.AlbumId = t.AlbumId " +
                             "GROUP BY ar.ArtistId, ar.Name " +
-                            "HAVING COUNT(a.AlbumId) > 0 " +
+                            "HAVING COUNT(DISTINCT a.AlbumId) > 0 " +
                             "ORDER BY AlbumCount DESC, TrackCount DESC " +
                             "LIMIT 10");
 
