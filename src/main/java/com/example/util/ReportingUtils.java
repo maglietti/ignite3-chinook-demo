@@ -3,6 +3,7 @@ package com.example.util;
 import com.example.model.*;
 import org.apache.ignite.client.IgniteClient;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class ReportingUtils {
             List<Artist> artists = new ArrayList<>();
 
             // Use SQL to get all artists
-            client.sql().execute(null, "SELECT ArtistId, Name FROM Artist")
+            client.sql().execute(null, "SELECT ArtistId, Name FROM Artist ORDER BY ArtistId")
                     .forEachRemaining(row -> {
                         Artist artist = new Artist();
                         artist.setArtistId(row.intValue("ArtistId"));
@@ -139,9 +140,9 @@ public class ReportingUtils {
             if (statResult.hasNext()) {
                 var row = statResult.next();
                 long totalTracks = row.longValue("TotalTracks");
-                double avgMinutes = row.doubleValue("AvgMinutes");
-                double minMinutes = row.doubleValue("MinMinutes");
-                double maxMinutes = row.doubleValue("MaxMinutes");
+                BigDecimal avgMinutes = row.decimalValue("AvgMinutes");
+                BigDecimal minMinutes = row.decimalValue("MinMinutes");
+                BigDecimal maxMinutes = row.decimalValue("MaxMinutes");
 
                 System.out.println("Total tracks: " + totalTracks);
                 System.out.println("Average length: " + String.format("%.2f", avgMinutes) + " minutes");
@@ -191,7 +192,7 @@ public class ReportingUtils {
         try {
             List<Genre> genres = new ArrayList<>();
 
-            client.sql().execute(null, "SELECT GenreId, Name FROM Genre")
+            client.sql().execute(null, "SELECT GenreId, Name FROM Genre ORDER BY GenreId")
                     .forEachRemaining(row -> {
                         Genre genre = new Genre();
                         genre.setGenreId(row.intValue("GenreId"));
