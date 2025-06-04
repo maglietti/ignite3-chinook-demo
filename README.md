@@ -1,4 +1,4 @@
-# Ignite 3 Chinook Database Demo
+# Ignite 3 Chinook Dataset Demo
 
 A demonstration of Apache Ignite 3 Java API using the Chinook database model.
 
