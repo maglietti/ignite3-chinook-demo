@@ -369,11 +369,3 @@ ORDER BY zone_name, table_name;
 Apache Ignite 3 offers a powerful platform for building distributed database applications with high performance and scalability. By leveraging concepts like distribution zones, storage profiles, and data co-location, you can optimize your application for various workloads and use cases.
 
 The Chinook example demonstrates how to apply these concepts in a practical scenario, showing the flexibility of both POJO-based and SQL-based approaches to database design and management.
-
-## Further Reading
-
-- [Apache Ignite 3 Java API Documentation](https://ignite.apache.org/docs/ignite3/latest/)
-- [Ignite 3 SQL Reference](https://ignite.apache.org/docs/ignite3/latest/sql-reference/ddl)
-- [Distribution Zones in Ignite 3](https://ignite.apache.org/docs/ignite3/latest/concepts/distributed-data)
-- [Storage Profiles and Engines](https://ignite.apache.org/docs/ignite3/latest/concepts/storage)
-- [Transaction Processing in Ignite 3](https://ignite.apache.org/docs/ignite3/latest/developers-guide/transactions)

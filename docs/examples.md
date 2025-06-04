@@ -871,13 +871,3 @@ public static void displayTableColumns(IgniteClient client, String tableName) {
     }
 }
 ```
-
-## Further Reading
-
-- [Apache Ignite 3 Java API Documentation](https://ignite.apache.org/docs/ignite3/latest/)
-- [SQL Reference for Ignite 3](https://ignite.apache.org/docs/ignite3/latest/sql-reference/ddl)
-- [Transaction Processing in Ignite 3](https://ignite.apache.org/docs/ignite3/latest/developers-guide/transactions)
-- [Distribution Zones in Ignite 3](./distribution-zones.md)
-- [POJO Mapping in Ignite 3](./pojo-mapping.md)
-- [Bulk Loading in Ignite 3](./bulk-load.md)
-- 

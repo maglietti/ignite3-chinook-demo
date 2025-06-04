@@ -401,12 +401,3 @@ Ignite 3 introduces several changes compared to Ignite 2.x:
 | Co-location | `@AffinityKeyMapped` | `colocateBy = @ColumnRef()` |
 | Storage | `@DataRegionConfiguration` | Storage Profiles in `@Zone` |
 | Indexes | `@QuerySqlField(index=true)` | `@Index` |
-
-
-## Further Reading
-
-- [Apache Ignite 3 Java API Documentation](https://ignite.apache.org/docs/ignite3/latest/)
-- [Ignite 3 SQL Reference](https://ignite.apache.org/docs/ignite3/latest/sql-reference/ddl)
-- [Distribution Zones in Ignite 3](./distribution-zones.md)
-- [POJO Mapping in Ignite 3](./pojo-mapping.md)
-- [Bulk Loading in Ignite 3](./bulk-load.md)

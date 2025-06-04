@@ -755,6 +755,4 @@ public static boolean dropTables(IgniteClient client, String... tableNames) {
 }
 ```
 
-## Conclusion
-
-For further details, consult the [Apache Ignite 3 documentation](https://ignite.apache.org/docs/ignite3/latest/) and explore the examples in this project's codebase.
+For more information, consult the [Apache Ignite 3 documentation](https://ignite.apache.org/docs/ignite3/latest/) and explore the examples in this project's codebase.

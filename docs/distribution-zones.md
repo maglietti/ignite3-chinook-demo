@@ -330,11 +330,3 @@ As your application evolves, you may need to adjust zones:
 | Transactional Data | 2 replicas, larger partition count | Balance between writes and fault tolerance |
 | Time-Series Data | 1-2 replicas, time-based partitioning | Optimize for sequential writes |
 | Archive Data | 1 replica with persistence | Low access frequency, storage efficiency |
-
-## Further Reading
-
-- [Apache Ignite 3 Distribution Documentation](https://ignite.apache.org/docs/latest/concepts/distributed-data)
-- [Ignite 3.0 Storage Architecture](https://ignite.apache.org/docs/latest/concepts/storage)
-- [Replication and High Availability in Ignite 3](https://ignite.apache.org/docs/latest/concepts/high-availability)
-- [Storage Profiles in Ignite 3](./storage-profiles.md)
-- [Bulk Loading in Ignite 3](./bulk-load.md)

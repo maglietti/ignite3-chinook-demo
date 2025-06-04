@@ -490,9 +490,3 @@ client.transactions().runInTransaction(tx -> {
     return true;
 });
 ```
-
-## Further Reading
-
-- [Original Chinook Database](https://github.com/lerocha/chinook-database)
-- [Bulk Loading the Chinook Database](./bulk-load.md)
-- [POJO Mapping in Ignite 3](./pojo-mapping.md)

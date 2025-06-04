@@ -339,11 +339,3 @@ client.transactions().runInTransaction(tx -> {
     return true;
 });
 ```
-
-## Further Reading
-
-- [Apache Ignite 3 Java API Documentation](https://ignite.apache.org/docs/ignite3/latest/)
-- [Distribution Zones in Ignite 3](./distribution-zones.md)
-- [Storage Profiles and Engines](./storage-profiles.md)
-- [Bulk Loading in Ignite 3](./bulk-load.md)
-- [Ignite 3 Annotations Reference](./annotations.md)

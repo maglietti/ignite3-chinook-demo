@@ -69,22 +69,26 @@ When you run the `BulkLoadApp`, it scans the resources directory for SQL files a
 When you run the `BulkLoadApp`, you'll see the following user interface:
 
 1. First, the app connects to the cluster:
+
    ```
    >>> Connected to the cluster: [localhost:10800]
    ```
 
 2. If existing tables are detected, the app prompts you to drop them:
+
    ```
    Existing tables detected in the database.
    Do you want to drop existing tables before loading new data? (Y/N)
    ```
 
 3. If you choose to drop tables, it may also ask about dropping zones:
+
    ```
    Do you also want to drop distribution zones? (Y/N)
    ```
 
 4. The app then lists available SQL files:
+
    ```
    Available SQL files:
    1. chinook-ignite3.sql
@@ -92,6 +96,7 @@ When you run the `BulkLoadApp`, you'll see the following user interface:
    ```
 
 5. After selecting a file, it parses the SQL statements and asks for confirmation:
+
    ```
    Selected file: chinook-ignite3.sql
    Parsed 127 SQL statements from file.
@@ -100,6 +105,7 @@ When you run the `BulkLoadApp`, you'll see the following user interface:
    ```
 
 6. Finally, it executes the SQL statements and verifies the results:
+
    ```
    === Starting bulk load from SQL file ===
    === Processing distribution zones, table definitions, and indexes ===
@@ -550,6 +556,7 @@ The bulk loader primarily uses the SQL approach but also includes support for PO
 The SQL statements in the bulk load file create tables with the same structure as the POJO definitions:
 
 POJO definition:
+
 ```java
 @Table(
         zone = @Zone(value = "Chinook", storageProfiles = "default"),
@@ -575,6 +582,7 @@ public class Album {
 ```
 
 Equivalent SQL definition in the bulk load file:
+
 ```sql
 CREATE TABLE Album (
     AlbumId INT,
@@ -604,6 +612,7 @@ You can create your own SQL files for bulk loading by following these steps:
 
 1. Create a file with `.sql` extension in the `src/main/resources` directory
 2. Structure your SQL file with the following sections:
+
    ```sql
    -- Create distribution zones
    CREATE ZONE IF NOT EXISTS ... WITH ...;
@@ -630,11 +639,3 @@ You can create your own SQL files for bulk loading by following these steps:
 - Use the `IF NOT EXISTS` clause for idempotent operations
 - Consider splitting large insert statements into smaller chunks
 - Include comments to document your SQL file
-
-## Further Reading
-
-- [Apache Ignite 3 SQL Reference](https://ignite.apache.org/docs/ignite3/latest/sql-reference/ddl)
-- [Distribution Zones in Ignite 3](./distribution-zones.md)
-- [POJO Mapping in Ignite 3](./pojo-mapping.md)
-- [Storage Profiles in Ignite 3](./storage-profiles.md)
-- [Examples and Patterns in Ignite 3](./examples.md)
