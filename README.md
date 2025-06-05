@@ -66,13 +66,16 @@ mvn compile exec:java@run-main
 
 For detailed documentation, see the [docs](./docs) directory:
 
+- [Quick Start Guide](./docs/quickstart-guide.md) - High-level overview of Ignite 3 concepts and architecture
 - [Getting Started](./docs/getting-started.md) - Detailed setup instructions
 - [Data Model](./docs/data-model.md) - Chinook database schema explanation
 - [POJO Mapping](./docs/pojo-mapping.md) - How POJOs are mapped to Ignite tables
 - [Distribution Zones](./docs/distribution-zones.md) - Understanding data distribution
 - [Storage Profiles](./docs/storage-profiles.md) - Storage engine options and configuration
 - [Annotations](./docs/annotations.md) - Reference for Ignite 3 annotations
+- [Developer Guide](./docs/developer-guide.md) - Comprehensive Java API tutorial with practical examples
 - [Examples](./docs/examples.md) - Code examples and patterns
+- [Factory Classes](./docs/factory-classes.md) - Factory pattern implementations for better code organization
 - [Bulk Loading](./docs/bulk-load.md) - Loading data from SQL files
 
 ## License
